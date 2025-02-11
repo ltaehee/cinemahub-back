@@ -2,7 +2,7 @@ const {
   googleClientId,
   googleOauthRedirectUri,
   googleClientSecret,
-} = require('../../consts/firebaseConfig');
+} = require('../../../consts/firebaseConfig');
 const axios = require('axios');
 
 const jwt = require('jsonwebtoken');

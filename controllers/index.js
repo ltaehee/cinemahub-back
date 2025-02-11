@@ -1,5 +1,5 @@
 const apiController = require('express').Router();
-const loginController = require('./login.controller');
+const loginController = require('./login/login.controller');
 
 /**
  * api/login

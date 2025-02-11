@@ -1,4 +1,5 @@
 require('./db_init');
+const apiController = require('./controllers');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
