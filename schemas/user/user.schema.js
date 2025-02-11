@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '/images/thumbnail.svg',
     },
+    role: {
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
   },
   {
     timestamps: {

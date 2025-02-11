@@ -23,7 +23,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
   const { code } = req.query;
 
   const redirectUrl = `https://oauth2.googleapis.com/token`;
-  const requestToken = await axios.post(redirectUrl, {
+  const request = await axios.post(redirectUrl, {
     code,
     client_id: googleClientId,
     client_secret: googleClientSecret,
@@ -31,21 +31,19 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     grant_type: 'authorization_code',
   });
 
-  const { access_token } = requestToken.data;
-  const accessToken = jwt.sign(access_token, 'secret Key');
+  const { access_token } = request.data;
+  const register_token = jwt.sign(access_token, 'secret Key');
 
-  res.cookie('access_token', accessToken, {
+  res.cookie('register_token', register_token, {
     httpOnly: true,
     maxAge: 60 * 60 * 1000,
   });
-
   return res.redirect(`http://localhost:5173/register?social=1`);
 });
 
 googleController.get('/google-get-data', async (req, res) => {
-  const encodedToken = req.cookies.access_token;
-
-  const access_token = jwt.verify(encodedToken, 'secret Key');
+  const register_token = req.cookies.register_token;
+  const access_token = jwt.verify(register_token, 'secret Key');
 
   const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
   const requestUserinfo = await axios.get(requestUserinfoUrl);
