@@ -54,8 +54,8 @@ naverController.get('/callback', async (req, res) => {
       const result = await findUserEmailBoolean({ email });
 
       if (!result) {
-        const register_data = jwt.sign(response, 'jwt_secret_key');
-        res.cookie('register_data', register_data, {
+        const register_naver = jwt.sign(response, 'jwt_secret_key');
+        res.cookie('register_naver', register_naver, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
         });
@@ -79,11 +79,10 @@ naverController.get('/callback', async (req, res) => {
 });
 
 naverController.get('/naver-get-data', async (req, res) => {
-  const register_data = req.cookies.register_data;
-  console.log(register_data);
+  const register_naver = req.cookies.register_naver;
 
   try {
-    const registerData = jwt.verify(register_data, 'jwt_secret_key');
+    const registerData = jwt.verify(register_naver, 'jwt_secret_key');
     return res.json({
       result: true,
       data: registerData,

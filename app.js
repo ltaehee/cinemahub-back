@@ -23,6 +23,11 @@ app.use(
 app.use('images', express.static('images'));
 app.use(cookieParser());
 
+// const checker = (req, res, next) => {
+//   console.log(req.session.id);
+//   req.next();
+// };
+
 app.use('/api', apiController);
 
 module.exports = app;

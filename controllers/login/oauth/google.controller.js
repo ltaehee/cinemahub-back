@@ -55,8 +55,8 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       const result = await findUserEmailBoolean({ email });
 
       if (!result) {
-        const register_data = jwt.sign(response, 'jwt_secret_key');
-        res.cookie('register_data', register_data, {
+        const register_google = jwt.sign(response, 'jwt_secret_key');
+        res.cookie('register_google', register_google, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
         });
@@ -80,10 +80,10 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 });
 
 googleController.get('/google-get-data', async (req, res) => {
-  const register_data = req.cookies.register_data;
+  const register_google = req.cookies.register_google;
 
   try {
-    const registerData = jwt.verify(register_data, 'jwt_secret_key');
+    const registerData = jwt.verify(register_google, 'jwt_secret_key');
     return res.json({
       result: true,
       data: registerData,
