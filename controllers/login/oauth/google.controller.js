@@ -62,6 +62,13 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
         });
         return res.redirect(`http://localhost:5173/register?social=1`);
       }
+
+      if (req.session.number === undefined) {
+        req.session.number = 1;
+      } else {
+        req.session.number++;
+      }
+
       // 기등록 유저일 떄 바로 로그인
       return res.redirect('http://localhost:5173/');
     }

@@ -61,6 +61,13 @@ naverController.get('/callback', async (req, res) => {
         });
         return res.redirect(`http://localhost:5173/register?social=2`);
       }
+
+      if (req.session.number === undefined) {
+        req.session.number = 1;
+      } else {
+        req.session.number++;
+      }
+
       // 기등록 유저일 떄 바로 로그인
       return res.redirect(`http://localhost:5173/`);
     }
@@ -73,6 +80,7 @@ naverController.get('/callback', async (req, res) => {
 
 naverController.get('/naver-get-data', async (req, res) => {
   const register_data = req.cookies.register_data;
+  console.log(register_data);
 
   try {
     const registerData = jwt.verify(register_data, 'jwt_secret_key');
