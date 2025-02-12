@@ -44,6 +44,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     }
 
     const { access_token } = request.data;
+
     const register_token = jwt.sign(access_token, 'jwt_secret_key');
 
     res.cookie('register_token', register_token, {
@@ -53,7 +54,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     return res.redirect(`http://localhost:5173/register?social=1`);
   } catch (e) {
     if (e instanceof InvaildRequestError) {
-      console.log(e.message);
+      console.error(e.message);
     }
   }
 });
@@ -73,7 +74,7 @@ googleController.get('/google-get-data', async (req, res) => {
       });
     }
   } catch (e) {
-    console.log(e.message);
+    console.error(e.message);
     return res.json({
       result: false,
       message: '구글 로그인에 실패했습니다. 다시 시도해주세요.',

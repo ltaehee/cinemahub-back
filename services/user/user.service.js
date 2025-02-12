@@ -18,7 +18,8 @@ const createUser = async ({ email, nickname, profile, role = 'user' }) => {
 const findUserEmailBoolean = async ({ email }) => {
   try {
     const result = await User.find({ email }).lean();
-    if (result) {
+    // []이 나옴 true로 인식
+    if (result.length !== 0 && result) {
       return true;
     }
     return false;
