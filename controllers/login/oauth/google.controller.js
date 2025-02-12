@@ -73,10 +73,10 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 });
 
 googleController.get('/google-get-data', async (req, res) => {
-  const register_token = req.cookies.register_token;
+  const register_data = req.cookies.register_data;
 
   try {
-    const registerData = jwt.verify(register_token, 'jwt_secret_key');
+    const registerData = jwt.verify(register_data, 'jwt_secret_key');
     return res.json({
       result: true,
       data: registerData,
