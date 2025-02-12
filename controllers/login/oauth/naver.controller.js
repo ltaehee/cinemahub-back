@@ -5,6 +5,8 @@ const {
   naverState,
 } = require('../../../consts/firebaseConfig');
 
+const { JWT_SECRET_KEY } = require('../../../consts/app');
+
 const axios = require('axios');
 
 const jwt = require('jsonwebtoken');
@@ -36,7 +38,7 @@ naverController.get('/callback', async (req, res) => {
     }
 
     const { access_token } = request.data;
-    const register_token = jwt.sign(access_token, 'secret Key');
+    const register_token = jwt.sign(access_token, 'jwt_secret_key');
 
     res.cookie('register_token', register_token, {
       httpOnly: true,
@@ -52,11 +54,10 @@ naverController.get('/callback', async (req, res) => {
 
 naverController.get('/naver-get-data', async (req, res) => {
   const register_token = req.cookies.register_token;
-  const access_token = jwt.verify(register_token, 'secret Key');
-
   const requestUserinfoUrl = `https://openapi.naver.com/v1/nid/me`;
 
   try {
+    const access_token = jwt.verify(register_token, 'jwt_secret_key');
     const requestUserinfo = await axios.get(requestUserinfoUrl, {
       headers: {
         'Content-type': 'application/json',
@@ -65,11 +66,10 @@ naverController.get('/naver-get-data', async (req, res) => {
     });
 
     // 작업 중
-
     if (requestUserinfo.status === 200) {
       return res.json({
         result: true,
-        data: requestUserinfo.data,
+        data: requestUserinfo.data.response,
       });
     }
   } catch (e) {
@@ -79,5 +79,17 @@ naverController.get('/naver-get-data', async (req, res) => {
     });
   }
 });
+
+// data: {
+//     resultcode: '00',
+//     message: 'success',
+//     response: {
+//       id: 'o4QhabDBnteuiG_affh4FM9chKWvB95vbT3jQ_Cbg2s',
+//       nickname: 'GIFT',
+//       profile_image: 'https://ssl.pstatic.net/static/pwe/address/img_profile.png',
+//       email: 'pursuit0819@naver.com',
+//       name: '마재훈'
+//     }
+//  }
 
 https: module.exports = naverController;

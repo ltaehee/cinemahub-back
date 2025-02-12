@@ -7,15 +7,16 @@ const userSchema = new mongoose.Schema(
       require: true,
       unique: true,
     },
-    name: {
+    nickname: {
       type: String,
       require: true,
     },
-    img: {
+    profile: {
       type: String,
       default: '/images/thumbnail.svg',
     },
     role: {
+      type: String,
       enum: ['user', 'admin'],
       default: 'user',
     },

@@ -1,14 +1,30 @@
-const User = require('../schemas/user.schema');
+const User = require('../../schemas/user/user.schema');
 
-const createUser = async ({ email, name, img }) => {
+const createUser = async ({ email, nickname, profile, role = 'user' }) => {
   try {
-    const result = await User.create({ email: email, name: name, img: img });
-
+    const result = await User.create({
+      email,
+      nickname,
+      profile,
+      role,
+    });
     if (!result) throw new Error('유저 생성 실패');
-    return result;
+    return result.toObject();
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
 };
 
-module.exports = { createUser };
+const findUserEmailBoolean = async ({ email }) => {
+  try {
+    const result = await User.find({ email }).lean();
+    if (result) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+module.exports = { createUser, findUserEmailBoolean };
