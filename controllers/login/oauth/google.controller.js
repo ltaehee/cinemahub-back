@@ -10,6 +10,7 @@ const axios = require('axios');
 
 const jwt = require('jsonwebtoken');
 const { InvaildRequestError } = require('../../../utils/error');
+const { findUserEmailBoolean } = require('../../../services/user/user.service');
 const googleController = require('express').Router();
 
 /** google oauth
@@ -45,13 +46,25 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 
     const { access_token } = request.data;
 
-    const register_token = jwt.sign(access_token, 'jwt_secret_key');
+    const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
+    const requestUserinfo = await axios.get(requestUserinfoUrl);
 
-    res.cookie('register_token', register_token, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 1000,
-    });
-    return res.redirect(`http://localhost:5173/register?social=1`);
+    if (requestUserinfo.status === 200) {
+      const response = requestUserinfo.data;
+      const email = response.email;
+      const result = await findUserEmailBoolean({ email });
+
+      if (!result) {
+        const register_data = jwt.sign(response, 'jwt_secret_key');
+        res.cookie('register_data', register_data, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 1000,
+        });
+        return res.redirect(`http://localhost:5173/register?social=1`);
+      }
+      // 기등록 유저일 떄 바로 로그인
+      return res.redirect('http://localhost:5173/');
+    }
   } catch (e) {
     if (e instanceof InvaildRequestError) {
       console.error(e.message);
@@ -63,18 +76,12 @@ googleController.get('/google-get-data', async (req, res) => {
   const register_token = req.cookies.register_token;
 
   try {
-    const access_token = jwt.verify(register_token, 'jwt_secret_key');
-    const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
-    const requestUserinfo = await axios.get(requestUserinfoUrl);
-
-    if (requestUserinfo.status === 200) {
-      return res.json({
-        result: true,
-        data: requestUserinfo.data,
-      });
-    }
+    const registerData = jwt.verify(register_token, 'jwt_secret_key');
+    return res.json({
+      result: true,
+      data: registerData,
+    });
   } catch (e) {
-    console.error(e.message);
     return res.json({
       result: false,
       message: '구글 로그인에 실패했습니다. 다시 시도해주세요.',

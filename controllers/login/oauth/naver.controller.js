@@ -52,7 +52,6 @@ naverController.get('/callback', async (req, res) => {
       const response = requestUserinfo.data.response;
       const email = response.email;
       const result = await findUserEmailBoolean({ email });
-      console.log(result);
 
       if (!result) {
         const register_data = jwt.sign(response, 'jwt_secret_key');
