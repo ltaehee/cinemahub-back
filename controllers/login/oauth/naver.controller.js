@@ -11,6 +11,7 @@ const axios = require('axios');
 
 const jwt = require('jsonwebtoken');
 const { InvaildRequestError } = require('../../../utils/error');
+const { findUserEmailBoolean } = require('../../../services/user/user.service');
 const naverController = require('express').Router();
 
 /** naver oauth
@@ -38,13 +39,40 @@ naverController.get('/callback', async (req, res) => {
     }
 
     const { access_token } = request.data;
-    const register_token = jwt.sign(access_token, 'jwt_secret_key');
 
-    res.cookie('register_token', register_token, {
-      httpOnly: true,
-      maxAge: 60 * 60 * 1000,
+    const requestUserinfoUrl = `https://openapi.naver.com/v1/nid/me`;
+    const requestUserinfo = await axios.get(requestUserinfoUrl, {
+      headers: {
+        'Content-type': 'application/json',
+        Authorization: `Bearer ${access_token}`,
+      },
     });
-    return res.redirect(`http://localhost:5173/register?social=2`);
+
+    if (requestUserinfo.status === 200) {
+      const response = requestUserinfo.data.response;
+      const email = response.email;
+      const result = await findUserEmailBoolean({ email });
+
+      if (!result) {
+        const register_naver = jwt.sign(response, 'jwt_secret_key');
+        res.cookie('register_naver', register_naver, {
+          httpOnly: true,
+          maxAge: 60 * 60 * 1000,
+        });
+        return res.redirect(`http://localhost:5173/register?social=2`);
+      }
+
+      if (req.session.number === undefined) {
+        req.session.number = 1;
+        req.session.loginState = true;
+      } else {
+        req.session.number++;
+        req.session.loginState = true;
+      }
+
+      // 기등록 유저일 떄 바로 로그인
+      return res.redirect(`http://localhost:5173/`);
+    }
   } catch (e) {
     if (e instanceof InvaildRequestError) {
       console.error(e.message);
@@ -53,25 +81,14 @@ naverController.get('/callback', async (req, res) => {
 });
 
 naverController.get('/naver-get-data', async (req, res) => {
-  const register_token = req.cookies.register_token;
-  const requestUserinfoUrl = `https://openapi.naver.com/v1/nid/me`;
+  const register_naver = req.cookies.register_naver;
 
   try {
-    const access_token = jwt.verify(register_token, 'jwt_secret_key');
-    const requestUserinfo = await axios.get(requestUserinfoUrl, {
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: `Bearer ${access_token}`,
-      },
+    const registerData = jwt.verify(register_naver, 'jwt_secret_key');
+    return res.json({
+      result: true,
+      data: registerData,
     });
-
-    // 작업 중
-    if (requestUserinfo.status === 200) {
-      return res.json({
-        result: true,
-        data: requestUserinfo.data.response,
-      });
-    }
   } catch (e) {
     return res.json({
       result: false,
