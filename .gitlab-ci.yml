@@ -10,16 +10,9 @@ stages:
 build:
   stage: build
   image: docker:latest
-  services:
-    - name: docker:dind
-      alias: docker
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_HOST: "tcp://docker:2375"
 
   script:
     - echo "Start build"
-    # 기존의 컨테이너(vite-app-container)와 이미지(vite-app-image)를 없애고 현재 빌드한 이미지로 만든 컨테이너 추가
     - docker stop cinema-hub-container || true
     - docker rm cinema-hub-container || true
     - docker rmi cinema-hub-image || true
@@ -30,4 +23,3 @@ build:
     - backend
   only:
     - main
-  privileged: true
