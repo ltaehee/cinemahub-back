@@ -13,6 +13,9 @@ build:
   services:
     - name: docker:dind
       alias: docker
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: "tcp://docker:2375"
 
   script:
     - echo "Start build"
@@ -27,3 +30,4 @@ build:
     - backend
   only:
     - main
+  privileged: true
