@@ -9,7 +9,6 @@ stages:
 
 build:
   stage: build
-  image: docker:latest
 
   script:
     - echo "Start build"
