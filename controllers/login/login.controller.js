@@ -41,8 +41,20 @@ loginController.post('/user', async (req, res) => {
 });
 
 loginController.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('http://localhost:5173/login');
+  if (req.session.id) {
+    req.session.destroy();
+    return res.json({ result: true, message: '로그아웃 완료' });
+  } else {
+    return res.json({ result: false, message: '로그인 정보가 없습니다.' });
+  }
+});
+
+loginController.get('/check-login', (req, res) => {
+  if (req.session.id) {
+    return res.json({ result: true, IsLogin: true });
+  } else {
+    return res.json({ result: false, IsLogin: false });
+  }
 });
 
 // pursuit0819@gmail.com
