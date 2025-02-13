@@ -70,9 +70,9 @@ loginController.get('/logout', (req, res) => {
 loginController.get('/check-login', (req, res) => {
   console.log(req.session.loginState);
   if (req.session.loginState) {
-    return res.json({ result: true, IsLogin: true });
+    return res.json({ result: true });
   } else {
-    return res.json({ result: false, IsLogin: false });
+    return res.json({ result: false });
   }
 });
 
