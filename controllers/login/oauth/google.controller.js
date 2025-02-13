@@ -65,8 +65,10 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 
       if (req.session.number === undefined) {
         req.session.number = 1;
+        req.session.loginState = true;
       } else {
         req.session.number++;
+        req.session.loginState = true;
       }
 
       // 기등록 유저일 떄 바로 로그인

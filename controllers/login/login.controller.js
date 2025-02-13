@@ -25,6 +25,14 @@ loginController.post('/user', async (req, res) => {
       throw new Error('이미 등록된 계정입니다. 로그인을 진행해주세요.');
     }
 
+    if (req.session.number === undefined) {
+      req.session.number = 1;
+      req.session.loginState = true;
+    } else {
+      req.session.number++;
+      req.session.loginState = true;
+    }
+
     const result = await createUser({ email, nickname, profile });
 
     return res.json({
@@ -41,16 +49,27 @@ loginController.post('/user', async (req, res) => {
 });
 
 loginController.get('/logout', (req, res) => {
-  if (req.session.id) {
-    req.session.destroy();
-    return res.json({ result: true, message: '로그아웃 완료' });
+  if (req.session.loginState) {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.json({ result: false, message: '로그아웃 실패' });
+      } else {
+        return res.json({ result: true, message: '로그아웃 완료' });
+      }
+    });
   } else {
     return res.json({ result: false, message: '로그인 정보가 없습니다.' });
   }
 });
 
+// Session {
+//   cookie: { path: '/', _expires: null, originalMaxAge: null, httpOnly: true },
+//   number: 1
+// }
+
 loginController.get('/check-login', (req, res) => {
-  if (req.session.id) {
+  console.log(req.session.loginState);
+  if (req.session.loginState) {
     return res.json({ result: true, IsLogin: true });
   } else {
     return res.json({ result: false, IsLogin: false });
