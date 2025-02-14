@@ -4,11 +4,9 @@ const {
   googleClientSecret,
 } = require('../../../consts/firebaseConfig');
 
-const { JWT_SECRET_KEY } = require('../../../consts/app');
-
 const axios = require('axios');
-
 const jwt = require('jsonwebtoken');
+
 const { InvaildRequestError } = require('../../../utils/error');
 const { findUserEmailBoolean } = require('../../../services/user/user.service');
 const googleController = require('express').Router();
@@ -63,13 +61,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
         return res.redirect(`http://localhost:5173/register?social=1`);
       }
 
-      if (req.session.number === undefined) {
-        req.session.number = 1;
-        req.session.loginState = true;
-      } else {
-        req.session.number++;
-        req.session.loginState = true;
-      }
+      req.session.loginState = true;
 
       // 기등록 유저일 떄 바로 로그인
       return res.redirect('http://localhost:5173/');
@@ -86,6 +78,8 @@ googleController.get('/google-get-data', async (req, res) => {
 
   try {
     const registerData = jwt.verify(register_google, 'jwt_secret_key');
+
+    res.clearCookie('register_google');
     return res.json({
       result: true,
       data: registerData,
