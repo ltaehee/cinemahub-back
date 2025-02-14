@@ -5,11 +5,9 @@ const {
   naverState,
 } = require('../../../consts/firebaseConfig');
 
-const { JWT_SECRET_KEY } = require('../../../consts/app');
-
 const axios = require('axios');
-
 const jwt = require('jsonwebtoken');
+
 const { InvaildRequestError } = require('../../../utils/error');
 const { findUserEmailBoolean } = require('../../../services/user/user.service');
 const naverController = require('express').Router();
@@ -62,13 +60,7 @@ naverController.get('/callback', async (req, res) => {
         return res.redirect(`http://localhost:5173/register?social=2`);
       }
 
-      if (req.session.number === undefined) {
-        req.session.number = 1;
-        req.session.loginState = true;
-      } else {
-        req.session.number++;
-        req.session.loginState = true;
-      }
+      req.session.loginState = true;
 
       // 기등록 유저일 떄 바로 로그인
       return res.redirect(`http://localhost:5173/`);
@@ -85,6 +77,7 @@ naverController.get('/naver-get-data', async (req, res) => {
 
   try {
     const registerData = jwt.verify(register_naver, 'jwt_secret_key');
+    res.clearCookie('register_naver');
     return res.json({
       result: true,
       data: registerData,
@@ -96,17 +89,5 @@ naverController.get('/naver-get-data', async (req, res) => {
     });
   }
 });
-
-// data: {
-//     resultcode: '00',
-//     message: 'success',
-//     response: {
-//       id: 'o4QhabDBnteuiG_affh4FM9chKWvB95vbT3jQ_Cbg2s',
-//       nickname: 'GIFT',
-//       profile_image: 'https://ssl.pstatic.net/static/pwe/address/img_profile.png',
-//       email: 'pursuit0819@naver.com',
-//       name: '마재훈'
-//     }
-//  }
 
 https: module.exports = naverController;
