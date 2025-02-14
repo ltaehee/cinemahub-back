@@ -11,7 +11,8 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(
   session({
-    secret: 'cinamahub',
+    name: 'cinamahub',
+    secret: 'cinamahub serect key',
     resave: 'false',
     saveUninitialized: true,
     store: new MemoryStore({
