@@ -11,12 +11,15 @@ const fetchMovies = async () => {
     let totalMovies = 0;
 
     for (let year = startYear; year <= currentYear; year++) {
+      const yearStart = `${year}-01-01`;
+      const yearEnd = year === currentYear ? today : `${year}-12-31`;
+
       const initialResponse = await axios.get(
         `${process.env.TMDB_API_BASE_URL}/discover/movie`,
         {
           params: {
-            "primary_release_date.gte": `${year}-01-01`,
-            "primary_release_date.lte": today,
+            "primary_release_date.gte": yearStart,
+            "primary_release_date.lte": yearEnd,
             language: "ko-KR",
             sort_by: "popularity.desc",
             page: 1,
@@ -29,14 +32,15 @@ const fetchMovies = async () => {
       );
 
       const totalPages = initialResponse.data.total_pages;
+      const pagesToFetch = Math.min(totalPages, 500);
 
-      for (let page = 1; page <= totalPages; page++) {
+      for (let page = 1; page <= pagesToFetch; page++) {
         const response = await axios.get(
           `${process.env.TMDB_API_BASE_URL}/discover/movie`,
           {
             params: {
-              "primary_release_date.gte": `${year}-01-01`,
-              "primary_release_date.lte": today,
+              "primary_release_date.gte": yearStart,
+              "primary_release_date.lte": yearEnd,
               language: "ko-KR",
               sort_by: "popularity.desc",
               page: page,
@@ -74,7 +78,7 @@ const fetchMovies = async () => {
         }
 
         console.log(
-          `년도 ${year} 페이지 ${page} 처리 완료, 현재까지 ${totalMovies}개 저장됨`
+          `${year}년도 ${page}페이지 처리 완료, 현재까지 ${totalMovies}개 저장됨`
         );
       }
     }
@@ -82,7 +86,6 @@ const fetchMovies = async () => {
     console.error("TMDB API 요청 실패:", error.message);
   }
 };
-
 cron.schedule("0 0 * * *", () => {
   console.log("영화 데이터 업데이트 시작");
   fetchMovies();
