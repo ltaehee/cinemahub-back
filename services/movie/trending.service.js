@@ -62,5 +62,4 @@ const getTrendingBoth = () => ({
   day: getTrendingMovies("day"),
   week: getTrendingMovies("week"),
 });
-
 module.exports = { fetchTrendingBoth, getTrendingBoth };
