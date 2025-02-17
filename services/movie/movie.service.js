@@ -1,6 +1,5 @@
 const Movie = require("../../schemas/movie/movie.schema");
 require("dotenv").config();
-const axios = require("axios");
 const cron = require("node-cron");
 const { tmdbApi } = require("../tmdbApi");
 

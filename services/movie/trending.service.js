@@ -1,5 +1,4 @@
 require("dotenv").config();
-const axios = require("axios");
 const LRU = require("lru-cache");
 const Movie = require("../../schemas/movie/movie.schema");
 const { fetchMovieDetails } = require("./movieDetailsCache.service");

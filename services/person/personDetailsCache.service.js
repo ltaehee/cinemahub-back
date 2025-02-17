@@ -1,4 +1,3 @@
-const axios = require("axios");
 const PersonDetailsCache = require("../../schemas/person/personDetailsCache.schema");
 const { tmdbApi } = require("../tmdbApi");
 
