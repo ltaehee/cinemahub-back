@@ -26,9 +26,6 @@ app.use(
 app.use("images", express.static("images"));
 app.use(cookieParser());
 
-fetchMovies();
-fetchPopularActors();
-
 // const checker = (req, res, next) => {
 //   console.log(req.session.id);
 //   req.next();
