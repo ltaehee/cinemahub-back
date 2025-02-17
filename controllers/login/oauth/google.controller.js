@@ -62,6 +62,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       }
 
       req.session.loginState = true;
+      req.session.user = { email };
 
       // 기등록 유저일 떄 바로 로그인
       return res.redirect('http://localhost:5173/');

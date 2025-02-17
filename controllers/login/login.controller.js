@@ -26,6 +26,7 @@ loginController.post('/user', async (req, res) => {
 
     const result = await createUser({ email, nickname, profile });
     req.session.loginState = true;
+    req.session.user = { email };
 
     return res.json({
       result: true,
