@@ -1,4 +1,4 @@
-import axios from "axios";
+const axios = require("axios");
 
 export const tmdbApi = axios.create({
   baseURL: process.env.TMDB_API_BASE_URL,
