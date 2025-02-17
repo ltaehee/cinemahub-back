@@ -3,6 +3,7 @@ const {
   updateUserProfile,
 } = require("../../services/mypage/mypage.service");
 
+// 개발 진행 중
 // 프로필 조회
 const getProfile = async (req, res) => {
   try {
