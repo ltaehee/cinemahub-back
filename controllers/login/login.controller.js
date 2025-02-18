@@ -30,7 +30,7 @@ loginController.post('/user', async (req, res) => {
 
     return res.json({
       result: true,
-      data: result,
+      message: '계정 등록이 완료되었습니다.',
     });
   } catch (e) {
     console.error(e.message);
