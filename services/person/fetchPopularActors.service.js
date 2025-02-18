@@ -1,39 +1,35 @@
-const axios = require("axios");
-require("dotenv").config();
 const cron = require("node-cron");
 const popularPersonCacheSchema = require("../../schemas/person/popularPersonCache.schema");
+const { tmdbApi } = require("../tmdbApi");
 
 const fetchPopularActors = async () => {
   try {
-    const response = await axios.get(
-      `${process.env.TMDB_API_BASE_URL}/person/popular`,
-      {
-        params: { language: "ko-KR", page: 1 },
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
-        },
-      }
-    );
+    const response = await tmdbApi.get(`/person/popular`, {
+      params: { language: "ko-KR", page: 1 },
+    });
 
     const actors = response.data.results;
 
     for (const actor of actors) {
-      await popularPersonCacheSchema.findOneAndUpdate(
-        { personId: actor.id },
-        {
-          name: actor.name,
-          profilePath: actor.profile_path,
-          knownFor: actor.known_for.map((movie) => ({
-            movieId: movie.id,
-            title: movie.title,
-            posterPath: movie.poster_path,
-          })),
-          popularity: actor.popularity,
-          updatedAt: new Date(),
-        },
-        { upsert: true, new: true }
-      );
+      try {
+        await popularPersonCacheSchema.findOneAndUpdate(
+          { personId: actor.id },
+          {
+            name: actor.name,
+            profilePath: actor.profile_path,
+            knownFor: actor.known_for.map((movie) => ({
+              movieId: movie.id,
+              title: movie.title,
+              posterPath: movie.poster_path,
+            })),
+            popularity: actor.popularity,
+            updatedAt: new Date(),
+          },
+          { upsert: true, new: true }
+        );
+      } catch (error) {
+        console.error(`배우 ${actor.name} 업데이트 실패:`, error.message);
+      }
     }
 
     console.log("인기 배우 데이터 업데이트 완료");

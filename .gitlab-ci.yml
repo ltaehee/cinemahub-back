@@ -9,9 +9,9 @@ stages:
 
 build:
   stage: build
+
   script:
     - echo "Start build"
-    # 기존의 컨테이너(vite-app-container)와 이미지(vite-app-image)를 없애고 현재 빌드한 이미지로 만든 컨테이너 추가
     - docker stop cinema-hub-container || true
     - docker rm cinema-hub-container || true
     - docker rmi cinema-hub-image || true
@@ -21,7 +21,4 @@ build:
   tags:
     - backend
   only:
-    - main
-
-  # 이미지를 없애야 하는 이유
-  # 여러 번 빌드하면 오래된 이미지들이 쌓여 디스크 공간을 차지함
+    - develop

@@ -1,5 +1,5 @@
-const axios = require("axios");
 const PersonDetailsCache = require("../../schemas/person/personDetailsCache.schema");
+const { tmdbApi } = require("../tmdbApi");
 
 const CACHE_TIME = 60 * 60 * 24 * 7;
 
@@ -15,22 +15,15 @@ const fetchPersonDetails = async (personId) => {
       }
     }
 
-    const detailsResponse = await axios.get(
-      `${process.env.TMDB_API_BASE_URL}/person/${personId}`,
-      {
-        params: {
-          append_to_response: "images",
-        },
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
-        },
-      }
-    );
+    const detailsResponse = await tmdbApi.get(`/person/${personId}`, {
+      params: {
+        append_to_response: "images",
+      },
+    });
 
     const { data } = detailsResponse;
     const imgPath =
-      data.images?.profiles?.map((image) => image.file_path) || [];
+      data.images?.profiles?.map((image) => image.file_path) ?? [];
     const { birthday, deathday, gender, department } = data;
     const placeOfBirth = data.place_of_birth;
 
