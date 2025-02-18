@@ -76,3 +76,20 @@ cron.schedule("0 0 * * *", () => {
   console.log("영화 데이터 업데이트 시작");
   fetchMovies();
 });
+
+// 검색해서 영화 정보 가져오기
+const findMovieByKeyword = async (keyword) => {
+  try {
+    const movies = await Movie.find({
+      title: { $regex: `^${keyword}`, $options: "i" },
+    }).limit(10); // 검색 10개로 제한
+    return movies;
+  } catch (err) {
+    console.error("영화 검색 오류: ", err);
+    throw new Error(err.message);
+  }
+};
+
+module.exports = {
+  findMovieByKeyword,
+};
