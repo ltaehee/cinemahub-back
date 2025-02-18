@@ -4,11 +4,14 @@ const {
   googleClientSecret,
 } = require('../../../consts/firebaseConfig');
 
+const { JWT_SECRET_KEY, FRONT_URL } = require('../../../consts/app');
+
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
 const { InvaildRequestError } = require('../../../utils/error');
 const { findUserEmailBoolean } = require('../../../services/user/user.service');
+
 const googleController = require('express').Router();
 
 /** google oauth
@@ -48,24 +51,27 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     const requestUserinfo = await axios.get(requestUserinfoUrl);
 
     if (requestUserinfo.status === 200) {
-      const response = requestUserinfo.data;
-      const email = response.email;
+      const { email, name, picture } = requestUserinfo.data;
       const result = await findUserEmailBoolean({ email });
 
+      // 등록된 회원이 아닐 경우
       if (!result) {
-        const register_google = jwt.sign(response, 'jwt_secret_key');
+        const register_google = jwt.sign(
+          { email, name, picture },
+          JWT_SECRET_KEY
+        );
         res.cookie('register_google', register_google, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
         });
-        return res.redirect(`http://localhost:5173/register?social=1`);
+        return res.redirect(`${FRONT_URL}register?social=1`);
       }
 
       req.session.loginState = true;
       req.session.user = { email };
 
       // 기등록 유저일 떄 바로 로그인
-      return res.redirect('http://localhost:5173/');
+      return res.redirect(FRONT_URL);
     }
   } catch (e) {
     if (e instanceof InvaildRequestError) {
@@ -78,10 +84,9 @@ googleController.get('/google-get-data', async (req, res) => {
   const register_google = req.cookies.register_google;
 
   try {
-    const registerData = jwt.verify(register_google, 'jwt_secret_key');
+    const registerData = jwt.verify(register_google, JWT_SECRET_KEY);
 
-    res.clearCookie('register_google');
-    return res.json({
+    return res.clearCookie('register_google').json({
       result: true,
       data: registerData,
     });
@@ -94,12 +99,3 @@ googleController.get('/google-get-data', async (req, res) => {
 });
 
 module.exports = googleController;
-
-// {
-//  "id":"110093801430137352077",
-//  "email":"pursuit0819@gmail.com",
-//  "verified_email":true,
-//  "name":"재훈(hun)",
-//  "given_name":"재훈",
-//  "picture":"https://lh3.googleusercontent.com/a/ACg8ocLs7E0vhaXjXqkHS88uaDZYPVRzUmZm9efoZn3MeHiFuU5VMu8=s96-c"
-// }

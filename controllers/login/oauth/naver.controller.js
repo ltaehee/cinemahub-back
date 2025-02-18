@@ -5,6 +5,8 @@ const {
   naverState,
 } = require('../../../consts/firebaseConfig');
 
+const { JWT_SECRET_KEY, FRONT_URL } = require('../../../consts/app');
+
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
@@ -47,24 +49,26 @@ naverController.get('/callback', async (req, res) => {
     });
 
     if (requestUserinfo.status === 200) {
-      const response = requestUserinfo.data.response;
-      const email = response.email;
+      const { email, nickname, profile_image } = requestUserinfo.data.response;
       const result = await findUserEmailBoolean({ email });
 
       if (!result) {
-        const register_naver = jwt.sign(response, 'jwt_secret_key');
+        const register_naver = jwt.sign(
+          { email, nickname, profile_image },
+          JWT_SECRET_KEY
+        );
         res.cookie('register_naver', register_naver, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
         });
-        return res.redirect(`http://localhost:5173/register?social=2`);
+        return res.redirect(`${FRONT_URL}register?social=2`);
       }
 
       req.session.loginState = true;
       req.session.user = { email };
 
       // 기등록 유저일 떄 바로 로그인
-      return res.redirect(`http://localhost:5173/`);
+      return res.redirect(`${FRONT_URL}`);
     }
   } catch (e) {
     if (e instanceof InvaildRequestError) {
@@ -77,9 +81,8 @@ naverController.get('/naver-get-data', async (req, res) => {
   const register_naver = req.cookies.register_naver;
 
   try {
-    const registerData = jwt.verify(register_naver, 'jwt_secret_key');
-    res.clearCookie('register_naver');
-    return res.json({
+    const registerData = jwt.verify(register_naver, JWT_SECRET_KEY);
+    return res.clearCookie('register_naver').json({
       result: true,
       data: registerData,
     });

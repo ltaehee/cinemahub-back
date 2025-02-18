@@ -1,47 +1,5 @@
+const { vaildateEnv } = require('./regex');
 require('dotenv').config();
-
-const urlRegex =
-  /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\:[0-9]+)?(\/[\w\-./?%&=]*)?$/;
-const stringRegex = /^[a-zA-Z]+$/;
-const numberRegex = /^\d+$/;
-const mongooseRegex =
-  /^mongodb\+srv:\/\/([a-zA-Z0-9_-]+(:[a-zA-Z0-9_-]+)?@)?([a-zA-Z0-9.-]+)(\/[a-zA-Z0-9_-]+)?(\?[a-zA-Z0-9_=&-]+)?$/;
-
-// case const 재선언 불가
-const vaildateEnv = (type, targetEnv, value) => {
-  if (targetEnv) {
-    switch (type) {
-      case type === 'string':
-        if (stringRegex.test(targetEnv)) {
-          return targetEnv;
-        } else {
-          return value;
-        }
-      case type === 'number':
-        if (numberRegex.test(targetEnv)) {
-          return targetEnv;
-        } else {
-          return value;
-        }
-      case type === 'url':
-        if (urlRegex.test(targetEnv)) {
-          return targetEnv;
-        } else {
-          return value;
-        }
-      case type === 'mongoose':
-        if (mongooseRegex.test(targetEnv)) {
-          return targetEnv;
-        } else {
-          return value;
-        }
-      default:
-        return value;
-    }
-  } else {
-    return value;
-  }
-};
 
 const PORT = vaildateEnv('string', process.env.PORT, '8080');
 
@@ -66,13 +24,13 @@ const JWT_SECRET_KEY = vaildateEnv(
 const SESSION_NAME = vaildateEnv(
   'string',
   process.env.SESSION_NAME,
-  'cinamahub'
+  'cinama_hub'
 );
 
 const SESSION_SERECT_KEY = vaildateEnv(
   'string',
   process.env.SESSION_SERECT_KEY,
-  'cinamahub serect key'
+  'cinamahub_serect_key'
 );
 
 module.exports = {
