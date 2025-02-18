@@ -1,5 +1,5 @@
-const axios = require("axios");
 const MovieDetailsCache = require("../../schemas/movie/movieDetailsCache.schema");
+const { tmdbApi } = require("../tmdbApi");
 
 const CACHE_TIME = 60 * 60 * 24 * 7;
 
@@ -18,22 +18,27 @@ const fetchMovieDetails = async (movieId) => {
       console.log(`MongoDB 캐시 만료, 새 데이터 요청: 영화 ID ${movieId}`);
     }
 
-    const detailsResponse = await axios.get(
-      `${process.env.TMDB_API_BASE_URL}/movie/${movieId}`,
-      {
-        params: {
-          language: "ko-KR",
-          append_to_response: "images,videos,credits",
-          include_image_language: "ko,null",
-        },
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
-        },
-      }
-    );
+    const detailsResponse = await tmdbApi.get(`/movie/${movieId}`, {
+      params: {
+        language: "ko-KR",
+        append_to_response: "images,videos,credits,release_dates",
+        include_image_language: "ko,null",
+      },
+    });
 
     const { data } = detailsResponse;
+
+    const logoPath =
+      data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ||
+      data.images?.logos?.[0]?.file_path ||
+      null;
+
+    const koreaRelease = data.release_dates?.results?.find(
+      (r) => r.iso_3166_1 === "KR"
+    );
+    const koreanRating =
+      koreaRelease?.release_dates?.[0]?.certification || "등급 정보 없음";
+
     const imgPath =
       data.images?.backdrops?.map((image) => image.file_path) || [];
     const { runtime, genres } = data;
@@ -70,12 +75,14 @@ const fetchMovieDetails = async (movieId) => {
 
     const movieDetails = {
       movieId,
+      logoPath,
       imgPath,
       runtime,
       genres,
       trailer,
       actor,
       director,
+      koreanRating,
       updatedAt: new Date(),
     };
 

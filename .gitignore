@@ -173,6 +173,9 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+# VSCode 설정 폴더 무시
+.vscode/
+
 
 # yarn v2
 .yarn/cache
