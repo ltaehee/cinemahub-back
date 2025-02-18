@@ -1,20 +1,13 @@
-const axios = require("axios");
 require("dotenv").config();
 const cron = require("node-cron");
 const popularPersonCacheSchema = require("../../schemas/person/popularPersonCache.schema");
+const { tmdbApi } = require("../tmdbApi");
 
 const fetchPopularActors = async () => {
   try {
-    const response = await axios.get(
-      `${process.env.TMDB_API_BASE_URL}/person/popular`,
-      {
-        params: { language: "ko-KR", page: 1 },
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${process.env.TMDB_API_KEY}`,
-        },
-      }
-    );
+    const response = await tmdbApi.get(`/person/popular`, {
+      params: { language: "ko-KR", page: 1 },
+    });
 
     const actors = response.data.results;
 

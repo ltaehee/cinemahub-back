@@ -1,22 +1,26 @@
 const {
-  getUserById,
   updateUserProfile,
+  findUserByEmail,
 } = require("../../services/mypage/mypage.service");
 
-// 개발 진행 중
 // 프로필 조회
 const getProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await getUserById(userId);
+    const email = req.session.user.email;
+    const user = await findUserByEmail({ email });
 
     if (!user) {
+      console.error("사용자를 찾을 수 없음");
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
+    console.log("사용자 데이터:", user);
     return res.status(200).json(user);
   } catch (error) {
-    return res.status(500).json({ message: "서버 오류", error });
+    console.error("서버 오류 발생:", error);
+    return res
+      .status(500)
+      .json({ message: "서버 오류 발생", error: error.message });
   }
 };
 
