@@ -1,4 +1,3 @@
-require("dotenv").config();
 const LRU = require("lru-cache");
 const Movie = require("../../schemas/movie/movie.schema");
 const { fetchMovieDetails } = require("./movieDetailsCache.service");
@@ -53,8 +52,8 @@ const fetchTrendingBoth = async () => {
 };
 
 const getTrendingMovies = (type) => {
-  if (type === "day") return dailyCache.get("trending_day") || [];
-  return weeklyCache.get("trending_week") || [];
+  if (type === "day") return dailyCache.get("trending_day") ?? [];
+  return weeklyCache.get("trending_week") ?? [];
 };
 
 const getTrendingBoth = () => ({

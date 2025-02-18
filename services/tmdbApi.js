@@ -1,4 +1,5 @@
 const axios = require("axios");
+require("dotenv").config();
 
 const tmdbApi = axios.create({
   baseURL: process.env.TMDB_API_BASE_URL,

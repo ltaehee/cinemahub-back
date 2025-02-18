@@ -23,7 +23,7 @@ const fetchPersonDetails = async (personId) => {
 
     const { data } = detailsResponse;
     const imgPath =
-      data.images?.profiles?.map((image) => image.file_path) || [];
+      data.images?.profiles?.map((image) => image.file_path) ?? [];
     const { birthday, deathday, gender, department } = data;
     const placeOfBirth = data.place_of_birth;
 

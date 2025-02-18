@@ -23,7 +23,7 @@ const movieDetailsCacheSchema = new mongoose.Schema({
     },
   ],
   koreanRating: String,
-  updatedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now, index: { expires: "7d" } },
 });
 
 module.exports = mongoose.model("MovieDetailsCache", movieDetailsCacheSchema);

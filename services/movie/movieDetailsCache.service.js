@@ -29,18 +29,18 @@ const fetchMovieDetails = async (movieId) => {
     const { data } = detailsResponse;
 
     const logoPath =
-      data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ||
-      data.images?.logos?.[0]?.file_path ||
+      data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
+      data.images?.logos?.[0]?.file_path ??
       null;
 
     const koreaRelease = data.release_dates?.results?.find(
       (r) => r.iso_3166_1 === "KR"
     );
     const koreanRating =
-      koreaRelease?.release_dates?.[0]?.certification || "등급 정보 없음";
+      koreaRelease?.release_dates?.[0]?.certification ?? "등급 정보 없음";
 
     const imgPath =
-      data.images?.backdrops?.map((image) => image.file_path) || [];
+      data.images?.backdrops?.map((image) => image.file_path) ?? [];
     const { runtime, genres } = data;
 
     const trailers = data.videos.results.filter(
