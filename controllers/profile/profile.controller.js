@@ -1,11 +1,12 @@
+const profileController = require("express").Router();
 const {
   updateUserProfile,
   findUserByNickname,
   findUserByEmail,
-} = require("../../services/mypage/mypage.service");
+} = require("../../services/profile/profile.service");
 
 // 프로필 조회
-const getProfile = async (req, res) => {
+profileController.get("/:nickname", async (req, res) => {
   try {
     const { nickname } = req.params;
 
@@ -34,10 +35,10 @@ const getProfile = async (req, res) => {
     console.error("프로필 조회 오류:", error);
     return res.status(500).json({ message: "서버 오류 발생" });
   }
-};
+});
 
 // 프로필 업데이트
-const updateProfile = async (req, res) => {
+profileController.patch("/profile-update", async (req, res) => {
   try {
     const email = req.session.user.email;
     const user = await findUserByEmail(email);
@@ -67,9 +68,6 @@ const updateProfile = async (req, res) => {
       .status(500)
       .json({ message: "서버 오류 발생", error: error.message });
   }
-};
+});
 
-module.exports = {
-  getProfile,
-  updateProfile,
-};
+module.exports = profileController;
