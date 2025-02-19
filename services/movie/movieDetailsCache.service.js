@@ -51,10 +51,7 @@ const fetchMovieDetails = async (movieId) => {
       (a, b) => new Date(a.published_at) - new Date(b.published_at)
     );
 
-    const trailer =
-      trailers.length > 0
-        ? `https://www.youtube.com/watch?v=${trailers[0].key}`
-        : null;
+    const trailer = trailers.length > 0 ? trailers[0].key : null;
 
     const actor = data.credits.cast
       .filter((person) => person.known_for_department === "Acting")
