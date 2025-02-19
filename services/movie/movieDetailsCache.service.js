@@ -30,6 +30,7 @@ const fetchMovieDetails = async (movieId) => {
 
     const logoPath =
       data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
+      data.images?.logos?.find((logo) => logo.iso_639_1 === "en")?.file_path ??
       data.images?.logos?.[0]?.file_path ??
       null;
 

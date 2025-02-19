@@ -1,3 +1,8 @@
+const {
+  getTrendingBoth,
+  fetchTrendingBoth,
+} = require("../services/movie/trending.service");
+
 const movieController = require("express").Router();
 
 movieController.get("/trending", async (req, res) => {
