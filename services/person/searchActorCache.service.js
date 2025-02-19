@@ -1,6 +1,5 @@
 const { LRUCache } = require("lru-cache");
-const axios = require("axios");
-const { TMDB_SEARCH_API_KEY } = require("../../consts/app");
+const { tmdbApi } = require("../tmdbApi");
 
 const cache = new LRUCache({
   max: 100, // 최대 100개 캐시 저장
@@ -18,11 +17,12 @@ const findActorByName = async (name) => {
 
   console.log(`캐시 없음, TMDB API 호출: ${name}`);
   try {
-    const searchResponse = await axios.get(
-      `https://api.themoviedb.org/3/search/person?api_key=${TMDB_SEARCH_API_KEY}&query=${encodeURIComponent(
-        name
-      )}&language=ko-KR`
-    );
+    const searchResponse = await tmdbApi.get(`/search/person`, {
+      params: {
+        query: name,
+        language: "ko-KR",
+      },
+    });
 
     if (searchResponse.data.results.length === 0) {
       throw new Error("배우를 찾을 수 없습니다.");
