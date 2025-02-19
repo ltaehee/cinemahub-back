@@ -1,5 +1,6 @@
 const loginController = require('express').Router();
 
+const { SESSION_NAME } = require('../../consts/app');
 const {
   createUser,
   findUserEmailBoolean,
@@ -50,6 +51,13 @@ const generateNickname = (nickname) => {
 loginController.post('/check-name', async (req, res) => {
   const { nickname } = req.body;
 
+  if (!nickname) {
+    return res.status(400).json({
+      result: false,
+      message: '닉네임을 입력해주세요.',
+    });
+  }
+
   try {
     const existNickname = await findUserNicknameBoolean({ nickname });
 
@@ -82,7 +90,7 @@ loginController.get('/logout', (req, res) => {
         return res.json({ result: false, message: '로그아웃 실패' });
       }
       return res
-        .clearCookie('cinamahub')
+        .clearCookie(SESSION_NAME)
         .json({ result: true, message: '로그아웃 완료' });
     });
   } else {

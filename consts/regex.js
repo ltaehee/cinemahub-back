@@ -11,25 +11,26 @@ const mongooseRegex =
 const vaildateEnv = (type, targetEnv) => {
   if (targetEnv) {
     switch (type) {
-      case type === 'string':
+      case 'string':
         if (stringRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
-      case type === 'number':
+
+      case 'number':
         if (numberRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
-      case type === 'url':
+      case 'url':
         if (urlRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
-      case type === 'mongoose':
+      case 'mongoose':
         if (mongooseRegex.test(targetEnv)) {
           return targetEnv;
         } else {
