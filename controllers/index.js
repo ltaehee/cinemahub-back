@@ -4,6 +4,7 @@ const movieController = require("./movie.controller");
 const personController = require("./person.controller");
 const searchController = require("./search/search.controller");
 const profileController = require("./profile/profile.controller");
+const followController = require("./profile/follow.controller");
 /**
  * api/login
  */
@@ -12,5 +13,6 @@ apiController.use("/movie", movieController);
 apiController.use("/search", searchController);
 apiController.use("/person", personController);
 apiController.use("/profile", profileController);
+apiController.use("/follow", followController);
 
 module.exports = apiController;
