@@ -39,3 +39,18 @@ const fetchPopularActors = async () => {
 };
 
 cron.schedule("0 0 * * *", fetchPopularActors);
+
+const getPopularActors = async () => {
+  try {
+    const actors = await popularPersonCacheSchema
+      .find()
+      .sort({ popularity: -1 });
+
+    return actors;
+  } catch (error) {
+    console.error("인기 배우 데이터 조회 실패:", error.message);
+    return [];
+  }
+};
+
+module.exports = { getPopularActors };

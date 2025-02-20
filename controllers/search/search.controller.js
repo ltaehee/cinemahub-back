@@ -1,34 +1,45 @@
-const { TMDB_SEARCH_API_KEY } = require("../../consts/app");
-
 const searchController = require("express").Router();
 const axios = require("axios");
+const { findMovieByKeyword } = require("../../services/movie/movie.service");
+const {
+  findActorByName,
+} = require("../../services/person/searchActorCache.service");
 
+// 배우정보 api 호출로 가져오기
 searchController.get("/actor", async (req, res) => {
-  //   console.log("req.session: ", req.session.user);
   const { name } = req.query;
-  console.log("name: ", name);
+
+  if (!name) {
+    return res.status(400).json({ error: "배우 이름을 입력하세요" });
+  }
+
   try {
-    const searchResponse = await axios.get(
-      `https://api.themoviedb.org/3/search/person?api_key=${TMDB_SEARCH_API_KEY}&query=${encodeURIComponent(
-        name
-      )}&language=ko-KR`
-    );
-
-    if (searchResponse.data.results.length === 0) {
-      return res.status(404).json({ error: "배우를 찾을 수 없습니다." });
-    }
-    console.log("searchResponse: ", searchResponse.data);
-
-    return res.json(searchResponse.data.results);
-
-    // const actorId = searchResponse.data.results[0].id; // 첫번째 배우 ID
-
-    // const detailResponse = await axios.get(
-    //   `https://api.themoviedb.org/3/person/${actorId}?api_key=${TMDB_SEARCH_API_KEY}&language=ko-KR`
-    // );
-    // console.log("detailResponse: ", detailResponse.data);
+    const actorData = await findActorByName(name);
+    return res.json(actorData);
   } catch (err) {
     res.status(500).json({ err: "배우 정보 조회 실패" });
+  }
+});
+
+// 영화정보 db 검색으로 가져오기
+searchController.get("/movie", async (req, res) => {
+  const { keyword } = req.query;
+  console.log("keyword: ", keyword);
+
+  if (!keyword) {
+    return res.status(400).json({ error: "검색어를 입력하세요" });
+  }
+
+  try {
+    const movies = await findMovieByKeyword(keyword);
+
+    if (movies.length === 0) {
+      return res.status(404).json({ error: "검색된 영화가 없습니다." });
+    }
+
+    return res.json(movies);
+  } catch (err) {
+    res.status(500).json({ err: "서버 오류" });
   }
 });
 

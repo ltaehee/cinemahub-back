@@ -1,14 +1,14 @@
-const LRU = require("lru-cache");
 const Movie = require("../../schemas/movie/movie.schema");
 const { fetchMovieDetails } = require("./movieDetailsCache.service");
 const { tmdbApi } = require("../tmdbApi");
+const { LRUCache } = require("lru-cache");
 
-const dailyCache = new LRU({
+const dailyCache = new LRUCache({
   max: 1,
   ttl: 1000 * 60 * 60 * 24,
 });
 
-const weeklyCache = new LRU({
+const weeklyCache = new LRUCache({
   max: 1,
   ttl: 1000 * 60 * 60 * 24 * 7,
 });

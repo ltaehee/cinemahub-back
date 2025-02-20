@@ -1,14 +1,13 @@
+const mypageRoutes = require('./routes/mypage/mypage.route');
 require('./db_init');
-const { SESSION_NAME, SESSION_SERECT_KEY } = require('./consts/app');
 const apiController = require('./controllers');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const { SESSION_NAME, SESSION_SERECT_KEY } = require('./consts/app');
 require('./services/movie/movie.service');
 require('./services/person/fetchPopularActors.service');
 const MemoryStore = require('memorystore')(session);
-
-const mypageRoutes = require('./routes/mypage/mypage.route');
 
 const app = express();
 app.use(express.json());
@@ -29,8 +28,7 @@ app.use(
 app.use('images', express.static('images'));
 app.use(cookieParser());
 
-app.use('/api', apiController);
-
 app.use('/api/mypage', mypageRoutes);
+app.use('/api', apiController);
 
 module.exports = app;
