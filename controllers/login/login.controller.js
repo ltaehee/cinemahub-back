@@ -26,6 +26,13 @@ loginController.post('/user', async (req, res) => {
       throw new Error('이미 등록된 계정입니다. 로그인을 진행해주세요.');
     }
 
+    const existNickname = await findUserNicknameBoolean({ nickname });
+    if (existNickname) {
+      throw new Error(
+        '이미 등록된 닉네임입니다. 등록 전에 중복체크를 진행해주세요'
+      );
+    }
+
     const result = await createUser({ email, nickname, profile });
     req.session.loginState = true;
     req.session.user = { email };
