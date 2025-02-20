@@ -47,7 +47,16 @@ profileController.get("/:nickname", async (req, res) => {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
-    // 현재 로그인한 유저의 이메일 가져오기
+    // 비로그인 상태일 때
+    if (!req.session.user || !req.session.user.email) {
+      return res.status(200).json({
+        ...user,
+        isOwnProfile: false,
+        isFollowing: false,
+      });
+    }
+
+    // 로그인한 상태일 때 로그인한 유저의 이메일 가져오기
     const loggedInUserEmail = req.session.user.email;
 
     const loggedInUser = await findUserByEmail(loggedInUserEmail);
