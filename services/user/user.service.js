@@ -1,6 +1,6 @@
-const User = require('../../schemas/user/user.schema');
+const User = require("../../schemas/user/user.schema");
 
-const createUser = async ({ email, nickname, profile, role = 'user' }) => {
+const createUser = async ({ email, nickname, profile, role = "user" }) => {
   try {
     const result = await User.create({
       email,
@@ -8,7 +8,7 @@ const createUser = async ({ email, nickname, profile, role = 'user' }) => {
       profile,
       role,
     });
-    if (!result) throw new Error('유저 생성 실패');
+    if (!result) throw new Error("유저 생성 실패");
     return result.toObject();
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
@@ -35,4 +35,22 @@ const findUserNicknameBoolean = async ({ nickname }) => {
   }
 };
 
-module.exports = { createUser, findUserEmailBoolean, findUserNicknameBoolean };
+// 관리자페이지에서 유저 검색
+const findUserNicknameByKeyword = async (keyword) => {
+  try {
+    const user = await User.find({
+      nickname: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 이름 검색
+    });
+    return user;
+  } catch (err) {
+    console.error("유저 검색 오류: ", err);
+    throw new Error(err.message);
+  }
+};
+
+module.exports = {
+  createUser,
+  findUserEmailBoolean,
+  findUserNicknameBoolean,
+  findUserNicknameByKeyword,
+};

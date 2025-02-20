@@ -92,7 +92,7 @@ cron.schedule("0 0 * * *", () => {
 const findMovieByKeyword = async (keyword) => {
   try {
     const movies = await Movie.find({
-      title: { $regex: `^${keyword}`, $options: "i" },
+      title: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 영화 검색
     }).limit(10); // 검색 10개로 제한
     return movies;
   } catch (err) {
