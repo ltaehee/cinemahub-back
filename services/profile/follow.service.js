@@ -63,23 +63,7 @@ const unfollowUserService = async (loggedInUserEmail, targetNickname) => {
   return { message: "언팔로우 성공" };
 };
 
-// 팔로우 상태 확인
-const checkFollowingStatusService = async (
-  loggedInUserEmail,
-  targetNickname
-) => {
-  const loggedInUser = await findUserByEmail(loggedInUserEmail);
-  const targetUser = await findUserByNickname(targetNickname);
-
-  if (!loggedInUser || !targetUser) {
-    throw new Error("사용자를 찾을 수 없습니다.");
-  }
-
-  return { isFollowing: loggedInUser.following.includes(targetUser._id) };
-};
-
 module.exports = {
   followUserService,
   unfollowUserService,
-  checkFollowingStatusService,
 };
