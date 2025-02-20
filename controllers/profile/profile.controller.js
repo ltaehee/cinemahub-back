@@ -4,6 +4,7 @@ const {
   findUserByNickname,
   findUserByEmail,
 } = require("../../services/profile/profile.service");
+const { findUserNicknameBoolean } = require("../../services/user/user.service");
 
 // 로그인한 유저 프로필 조회
 profileController.get("/me", async (req, res) => {
@@ -111,6 +112,39 @@ profileController.patch("/profile-update", async (req, res) => {
     return res
       .status(500)
       .json({ message: "서버 오류 발생", error: error.message });
+  }
+});
+
+// 닉네임 중복체크
+profileController.post("/check-name", async (req, res) => {
+  const { nickname } = req.body;
+
+  if (!nickname) {
+    return res.status(400).json({
+      result: false,
+      message: "닉네임을 입력해주세요.",
+    });
+  }
+  try {
+    const existNickname = await findUserNicknameBoolean({ nickname });
+
+    if (existNickname) {
+      return res.json({
+        result: false,
+        message: "동일한 닉네임이 존재합니다. 닉네임을 추천해드릴게요.",
+      });
+    }
+    return res.json({
+      result: true,
+      nickname,
+      message: "사용 가능한 닉네임입니다",
+    });
+  } catch (e) {
+    console.error(e.message);
+    return res.json({
+      result: false,
+      message: e.message,
+    });
   }
 });
 

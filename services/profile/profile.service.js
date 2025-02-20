@@ -15,7 +15,10 @@ const findUserByNickname = async (nickname) => {
 
 const findUserByEmail = async (email) => {
   try {
-    const user = await User.findOne({ email }).lean();
+    const user = await User.findOne({ email })
+      .populate("followers", "nickname email profileImg")
+      .populate("following", "nickname email profileImg")
+      .lean();
     return user;
   } catch (e) {
     throw new Error(e instanceof Error ? e.message : "유저 조회 실패");
