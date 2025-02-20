@@ -12,10 +12,11 @@ const JWT_SECRET_KEY = 'jwt_secret_key';
 
 const SESSION_NAME = vaildateEnv('string', process.env.SESSION_NAME);
 
-const SESSION_SERECT_KEY = vaildateEnv(
-  'string',
-  process.env.SESSION_SERECT_KEY
-);
+const SESSION_SERECT_KEY = 'cinamahub_serect_key';
+// vaildateEnv(
+//   'string',
+//   process.env.SESSION_SERECT_KEY
+// );
 
 module.exports = {
   PORT,
