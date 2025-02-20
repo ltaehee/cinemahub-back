@@ -11,6 +11,7 @@ profileController.get("/:nickname", async (req, res) => {
     const { nickname } = req.params;
 
     const user = await findUserByNickname(nickname);
+    console.log("Dasdsa", user);
     if (!user) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
@@ -24,12 +25,15 @@ profileController.get("/:nickname", async (req, res) => {
         .status(404)
         .json({ message: "로그인한 사용자를 찾을 수 없습니다." });
     }
-    /* console.log("loggedInUser", loggedInUser);
-    console.log("user.nickname", user.nickname); */
+    // 팔로우 상태 확인
+    const isFollowing = user.followers.some(
+      (follower) => follower.email === loggedInUserEmail
+    );
 
     return res.status(200).json({
       ...user,
       isOwnProfile: loggedInUser.nickname === user.nickname, // 프론트에서 바로 활용
+      isFollowing,
     });
   } catch (error) {
     console.error("프로필 조회 오류:", error);
