@@ -1,8 +1,10 @@
 const loginController = require('express').Router();
 
+const { SESSION_NAME } = require('../../consts/app');
 const {
   createUser,
   findUserEmailBoolean,
+  findUserNicknameBoolean,
 } = require('../../services/user/user.service');
 const googleController = require('./oauth/google.controller');
 const naverController = require('./oauth/naver.controller');
@@ -41,6 +43,46 @@ loginController.post('/user', async (req, res) => {
   }
 });
 
+const generateNickname = (nickname) => {
+  const randomId = Math.random().toString(10).split('.')[1].slice(0, 3);
+  return `${nickname}${randomId}`;
+};
+
+loginController.post('/check-name', async (req, res) => {
+  const { nickname } = req.body;
+
+  if (!nickname) {
+    return res.status(400).json({
+      result: false,
+      message: '닉네임을 입력해주세요.',
+    });
+  }
+
+  try {
+    const existNickname = await findUserNicknameBoolean({ nickname });
+
+    if (existNickname) {
+      return res.json({
+        result: true,
+        nickname: generateNickname(nickname),
+        message: '동일한 닉네임이 존재합니다. 닉네임을 추천해드릴게요.',
+      });
+    }
+
+    return res.json({
+      result: true,
+      nickname,
+      message: '사용 가능한 닉네임입니다',
+    });
+  } catch (e) {
+    console.error(e.message);
+    return res.json({
+      result: false,
+      message: e.message,
+    });
+  }
+});
+
 loginController.get('/logout', (req, res) => {
   if (req.session.loginState) {
     req.session.destroy((err) => {
@@ -48,7 +90,7 @@ loginController.get('/logout', (req, res) => {
         return res.json({ result: false, message: '로그아웃 실패' });
       }
       return res
-        .clearCookie('cinamahub')
+        .clearCookie(SESSION_NAME)
         .json({ result: true, message: '로그아웃 완료' });
     });
   } else {

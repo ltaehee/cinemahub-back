@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema(
   {
     userId: {
       type: ObjectId,
       required: true,
-      ref: "User",
+      ref: 'User',
     },
     movieId: {
       // api 영화 고유 id
@@ -25,10 +25,20 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
     like: {
-      type: Number,
+      type: Boolean,
+      default: false,
     },
     dislike: {
+      type: Boolean,
+      default: false,
+    },
+    totalLike: {
       type: Number,
+      default: 1,
+    },
+    totalUnlike: {
+      type: Number,
+      default: 1,
     },
   },
   {
@@ -38,5 +48,5 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-const Review = mongoose.model("Review", reviewSchema);
+const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
