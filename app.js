@@ -1,4 +1,4 @@
-const mypageRoutes = require('./routes/mypage/mypage.route');
+// const mypageRoutes = require('./routes/mypage/mypage.route');
 require('./db_init');
 const apiController = require('./controllers');
 const express = require('express');
@@ -28,7 +28,7 @@ app.use(
 app.use('images', express.static('images'));
 app.use(cookieParser());
 
-app.use('/api/mypage', mypageRoutes);
+// app.use('/api/mypage', mypageRoutes);
 app.use('/api', apiController);
 
 module.exports = app;
