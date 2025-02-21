@@ -16,9 +16,9 @@ build_and_publish:
   image: docker:latest
   stage: build_and_publish
   services:
-    - docker:dind
+    - name: docker:dind
+      alias: docker
   script:
-    - unset DOCKER_HOST
     - docker build -t $TAG_COMMIT -t $TAG_LATEST .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - docker push $TAG_COMMIT
