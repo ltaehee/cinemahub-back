@@ -38,12 +38,47 @@ const findUserNicknameBoolean = async ({ nickname }) => {
 // 관리자페이지에서 유저 검색
 const findUserNicknameByKeyword = async (keyword) => {
   try {
-    const user = await User.find({
+    const result = await User.find({
       nickname: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 이름 검색
     });
-    return user;
+    return result;
   } catch (err) {
     console.error("유저 검색 오류: ", err);
+    throw new Error(err.message);
+  }
+};
+
+// 단일 유저 삭제(Soft Delete)
+const deleteUserByEmail = async (email) => {
+  try {
+    const result = await User.findOneAndUpdate(
+      { email },
+      { deletedAt: new Date() },
+      { new: true }
+    );
+
+    if (!result) {
+      throw new Error("해당 이메일의 유저를 찾을 수 없습니다.");
+    }
+
+    return result;
+  } catch (err) {
+    console.error("유저 삭제중 오류 발생: ", err);
+    throw new Error(err.message);
+  }
+};
+
+// 다중 유저 삭제(Soft Delete)
+const deleteUsersByEmails = async (emails) => {
+  try {
+    const result = await User.updateMany(
+      { email: { $in: emails } }, // email 값 중 일치하는 email 찾기
+      { deletedAt: new Date() }
+    );
+
+    return result;
+  } catch (err) {
+    console.error("다중 유저 삭제중 오류 발생: ", err);
     throw new Error(err.message);
   }
 };
@@ -53,4 +88,6 @@ module.exports = {
   findUserEmailBoolean,
   findUserNicknameBoolean,
   findUserNicknameByKeyword,
+  deleteUserByEmail,
+  deleteUsersByEmails,
 };

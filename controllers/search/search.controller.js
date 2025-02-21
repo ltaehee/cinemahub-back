@@ -1,12 +1,8 @@
 const searchController = require("express").Router();
-const axios = require("axios");
 const { findMovieByKeyword } = require("../../services/movie/movie.service");
 const {
   findActorByName,
 } = require("../../services/person/searchActorCache.service");
-const {
-  findUserByNickname,
-} = require("../../services/profile/profile.service");
 const {
   findUserNicknameByKeyword,
 } = require("../../services/user/user.service");
@@ -70,7 +66,6 @@ searchController.get("/user", async (req, res) => {
       createdAt: prev.createdAt,
     }));
 
-    console.log("user: ", madeUser);
     return res.json(madeUser);
   } catch (err) {
     res.status(500).json({ err: "유저 정보 조회 실패" });
