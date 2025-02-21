@@ -9,8 +9,8 @@ stages:
   - deploy
 
 variables:
-  TAG_LATEST: qkrcksgh5654/cinemahub/$CI_COMMIT_REF_NAME:latest
-  TAG_COMMIT: qkrcksgh5654/cinemahub/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
+  TAG_LATEST: qkrcksgh5654/cinemahub:latest
+  TAG_COMMIT: qkrcksgh5654/cinemahub:$CI_COMMIT_SHORT_SHA
 
 build_and_publish:
   stage: build_and_publish
