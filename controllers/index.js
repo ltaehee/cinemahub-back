@@ -7,6 +7,7 @@ const profileController = require("./profile/profile.controller");
 const followController = require("./profile/follow.controller");
 const reviewController = require("./review/review.controller");
 const adminController = require("./admin/admin.controller");
+const favoritesController = require("./profile/favorites.controller");
 /**
  * api/login
  */
@@ -18,5 +19,6 @@ apiController.use("/profile", profileController);
 apiController.use("/follow", followController);
 apiController.use("/review", reviewController);
 apiController.use("/admin", adminController);
+apiController.use("/favortie", favoritesController);
 
 module.exports = apiController;

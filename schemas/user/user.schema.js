@@ -31,11 +31,11 @@ const userSchema = new mongoose.Schema(
       {
         favoriteType: {
           type: String,
-          enum: ["Movie", "Actor", "Director"],
+          enum: ["Movie", "Person"],
           required: true,
         },
         favoriteId: {
-          type: ObjectId,
+          type: String,
           required: true,
           refPath: "favorites.favoriteType",
         },
