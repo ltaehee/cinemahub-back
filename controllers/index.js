@@ -19,6 +19,6 @@ apiController.use("/profile", profileController);
 apiController.use("/follow", followController);
 apiController.use("/review", reviewController);
 apiController.use("/admin", adminController);
-apiController.use("/favortie", favoritesController);
+apiController.use("/favorite", favoritesController);
 
 module.exports = apiController;
