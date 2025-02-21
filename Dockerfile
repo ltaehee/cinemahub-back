@@ -16,6 +16,4 @@ WORKDIR /app
 
 COPY --from=builder /app/{package.json,node_modules,index.js,app.js,db_init.js} ./
 
-# EXPOSE 3000
-
 CMD ["node", "index.js"] 
