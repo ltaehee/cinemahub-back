@@ -13,11 +13,7 @@ variables:
   TAG_COMMIT: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_NAME:$CI_COMMIT_SHORT_SHA
 
 build_and_publish:
-  image: docker:latest
   stage: build_and_publish
-  services:
-    - name: docker:dind
-      alias: docker
   script:
     - docker build -t $TAG_COMMIT -t $TAG_LATEST .
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
@@ -25,7 +21,6 @@ build_and_publish:
     - docker push $TAG_LATEST
 
 deploy:
-  image: alpine:latest
   stage: deploy
   tags:
     - deployment
