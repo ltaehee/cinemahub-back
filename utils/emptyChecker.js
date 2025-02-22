@@ -5,7 +5,9 @@ const emptyChecker = (param) => {
     objectValues.includes('') ||
     objectValues.includes(0) ||
     objectValues.includes(undefined) ||
-    objectValues.includes(null)
+    objectValues.includes(null) ||
+    objectValues.includes([]) ||
+    objectValues.includes({})
   );
 };
 

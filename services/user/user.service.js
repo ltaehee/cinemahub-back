@@ -25,6 +25,16 @@ const findUserEmailBoolean = async ({ email }) => {
   }
 };
 
+const findUserEmailId = async ({ email }) => {
+  try {
+    const result = await User.find({ email }).lean();
+    // []이 나옴 true로 인식
+    return result.length !== 0 && String(result[0]._id);
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
 const findUserNicknameBoolean = async ({ nickname }) => {
   try {
     const result = await User.find({ nickname }).lean();
@@ -35,4 +45,9 @@ const findUserNicknameBoolean = async ({ nickname }) => {
   }
 };
 
-module.exports = { createUser, findUserEmailBoolean, findUserNicknameBoolean };
+module.exports = {
+  createUser,
+  findUserEmailBoolean,
+  findUserNicknameBoolean,
+  findUserEmailId,
+};
