@@ -25,7 +25,7 @@ searchController.get("/actor", async (req, res) => {
 
 // 영화정보 db 검색으로 가져오기
 searchController.get("/movie", async (req, res) => {
-  const { keyword } = req.query;
+  const { keyword, page = 1, limit = 16 } = req.query;
   console.log("keyword: ", keyword);
 
   if (!keyword) {
@@ -33,13 +33,17 @@ searchController.get("/movie", async (req, res) => {
   }
 
   try {
-    const movies = await findMovieByKeyword(keyword);
+    const { movies, totalCount } = await findMovieByKeyword(
+      keyword,
+      Number(page),
+      Number(limit)
+    );
 
     if (movies.length === 0) {
       return res.status(404).json({ error: "검색된 영화가 없습니다." });
     }
 
-    return res.json(movies);
+    return res.json({ movies, totalCount });
   } catch (err) {
     res.status(500).json({ err: "서버 오류" });
   }
