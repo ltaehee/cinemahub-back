@@ -72,6 +72,10 @@ reviewController.post('/totalcomments', async (req, res) => {
     throw new Error('전체 리뷰 등록 실패');
   }
 
+  if (!totalstarpoint) {
+    throw new Error('별점 조회 실패');
+  }
+
   try {
     return res.json({
       result: true,
@@ -87,7 +91,7 @@ reviewController.post('/totalcomments', async (req, res) => {
 });
 
 reviewController.post('/likes', checklogin, async (req, res) => {
-  const { reviewId } = req.body;
+  const { commentId, likes } = req.body;
   const { email } = req.session.user;
 
   if (!email) {
@@ -96,6 +100,16 @@ reviewController.post('/likes', checklogin, async (req, res) => {
       message: '로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.',
     });
   }
+
+  if (emptyChecker({ commentId })) {
+    return res.status(404).json({
+      result: false,
+      message: '댓글을 참조할 수 없습니다. 새로고침 해주세요.',
+    });
+  }
+
+  // const result = await
+
   try {
     return res.json({
       result: true,
