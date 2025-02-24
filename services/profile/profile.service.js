@@ -4,8 +4,8 @@ const User = require("../../schemas/user/user.schema");
 const findUserByNickname = async (nickname) => {
   try {
     const user = await User.findOne({ nickname, deletedAt: null })
-      .populate("followers", "nickname email profileImg")
-      .populate("following", "nickname email profileImg")
+      .populate("followers", "nickname email profileImg deletedAt")
+      .populate("following", "nickname email profileImg deletedAt")
       .lean();
     return user;
   } catch (e) {
@@ -16,8 +16,8 @@ const findUserByNickname = async (nickname) => {
 const findUserByEmail = async (email) => {
   try {
     const user = await User.findOne({ email, deletedAt: null })
-      .populate("followers", "nickname email profileImg")
-      .populate("following", "nickname email profileImg");
+      .populate("followers", "nickname email profileImg deletedAt")
+      .populate("following", "nickname email profileImg deletedAt");
     return user;
   } catch (e) {
     throw new Error("유저 조회 실패");
