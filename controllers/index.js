@@ -8,6 +8,7 @@ const followController = require("./profile/follow.controller");
 const reviewController = require("./review/review.controller");
 const adminController = require("./admin/admin.controller");
 const favoritesController = require("./profile/favorites.controller");
+const getPresignedUrl = require("./profile/upload.controller");
 /**
  * api/login
  */
@@ -20,5 +21,6 @@ apiController.use("/follow", followController);
 apiController.use("/review", reviewController);
 apiController.use("/admin", adminController);
 apiController.use("/favorite", favoritesController);
+apiController.get("/upload", getPresignedUrl);
 
 module.exports = apiController;
