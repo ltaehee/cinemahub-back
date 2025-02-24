@@ -1,6 +1,8 @@
 const profileController = require("express").Router();
 const Movie = require("../../schemas/movie/movie.schema");
-const popularPersonCacheSchema = require("../../schemas/person/popularPersonCache.schema");
+const {
+  getFavoritePersons,
+} = require("../../services/profile/favorites.service");
 const {
   updateUserProfile,
   findUserByNickname,
@@ -61,9 +63,8 @@ profileController.get("/:nickname", async (req, res) => {
       .filter((fav) => fav.favoriteType === "Person")
       .map((fav) => parseInt(fav.favoriteId));
 
-    const favoritePersons = await popularPersonCacheSchema.find({
-      personId: { $in: personIds },
-    });
+    // TMDB API 호출로 Person 정보 가져오기
+    const favoritePersons = await getFavoritePersons(personIds);
 
     // 비로그인 상태일 때
     if (!req.session.user || !req.session.user.email) {

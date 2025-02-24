@@ -10,10 +10,6 @@ const followUserService = async (loggedInUserEmail, targetNickname) => {
     throw new Error("사용자를 찾을 수 없습니다.");
   }
 
-  if (loggedInUser.following.includes(targetUser._id)) {
-    throw new Error("이미 팔로우한 사용자입니다.");
-  }
-
   await User.updateOne(
     { email: loggedInUserEmail },
     { $push: { following: targetUser._id } }
