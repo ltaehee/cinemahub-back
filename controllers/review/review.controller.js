@@ -2,6 +2,7 @@ const checklogin = require('../../middlewares/checklogin');
 const { findUserEmailId } = require('../../services/user/user.service');
 const {
   createReview,
+  updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
 } = require('../../services/review/review.service');
@@ -79,7 +80,10 @@ reviewController.post('/totalcomments', async (req, res) => {
   try {
     return res.json({
       result: true,
-      data: { reviews, totalstarpoint: totalstarpoint.toFixed(1) },
+      data: {
+        reviews,
+        totalstarpoint: totalstarpoint.totalStarScore.toFixed(1),
+      },
       message: '전체 리뷰 조회 성공',
     });
   } catch (e) {
@@ -104,21 +108,43 @@ reviewController.post('/likes', checklogin, async (req, res) => {
   if (emptyChecker({ commentId })) {
     return res.status(404).json({
       result: false,
-      message: '댓글을 참조할 수 없습니다. 새로고침 해주세요.',
+      message: '리뷰를 참조할 수 없습니다. 새로고침 해주세요.',
     });
   }
 
-  // const result = await
-
   try {
+    const userId = await findUserEmailId({ email });
+
+    if (!userId) {
+      return res.status(404).json({
+        result: false,
+        message: '일치하는 유저 정보를 찾을 수 없습니다.',
+      });
+    }
+
+    const result = await updateLikeCommentIdLikes({
+      commentId,
+      userId,
+      likes,
+    });
+
+    console.log(result);
+
+    if (!result) {
+      return res.status(500).json({
+        result: false,
+        message: '좋아요/싫어요 등록에 실패했습니다.',
+      });
+    }
+
     return res.json({
       result: true,
-      message: '좋아요 성공',
+      message: '좋아요/싫어요 등록 성공',
     });
   } catch (e) {
     return res.json({
       result: false,
-      message: '좋아요 실패',
+      message: '좋아요/싫어요 등록 실패',
     });
   }
 });

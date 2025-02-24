@@ -1,4 +1,5 @@
 const Review = require('../../schemas/review/review.schema');
+const emptyChecker = require('../../utils/emptyChecker');
 
 const createReview = async ({ userId, content, starpoint, image, movieId }) => {
   try {
@@ -48,11 +49,94 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       },
     ]);
 
-    if (!result) {
-      throw new Error('별점 조회 실패');
+    if (emptyChecker({ result })) {
+      return { _id: null, totalStarScore: 0 };
+    }
+    return result[0];
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
+  // _id는 Object이므로 String으로 변환
+  try {
+    const result = await findCommentIdComment({ commentId });
+
+    if (likes.like) {
+      if (!result[0].like.includes(userId)) {
+        await Review.updateOne(
+          { _id: commentId },
+          {
+            $push: { like: userId },
+            $pull: {
+              dislike: userId,
+            },
+          }
+        );
+        return { message: '좋아요를 눌렀어요.' };
+      } else {
+        return { message: '이미 좋아요를 눌렀어요.' };
+      }
     }
 
-    return result[0].totalStarScore;
+    if (likes.dislike) {
+      if (!result[0].dislike.includes(userId)) {
+        await Review.updateOne(
+          { _id: commentId },
+          {
+            $push: { dislike: userId },
+            $pull: {
+              like: userId,
+            },
+          }
+        );
+        return { message: '싫어요를 눌렀어요.' };
+      } else {
+        return { message: '이미 싫어요를 눌렀어요.' };
+      }
+    }
+
+    if (likes.like === false && likes.dislike === false) {
+      // 형변환 ...
+      if (result[0].like.some((item) => JSON.stringify(item) === `${userId}`)) {
+        await Review.updateOne(
+          { _id: commentId },
+          {
+            $pull: {
+              like: userId,
+            },
+          }
+        );
+        return { message: '좋아요 취소' };
+      }
+
+      // 형변환 ...
+      if (result[0].like.some((item) => JSON.stringify(item) === `${userId}`)) {
+        await Review.updateOne(
+          { _id: commentId },
+          {
+            $pull: {
+              dislike: String(userId),
+            },
+          }
+        );
+        return { message: '싫어요 취소' };
+      }
+    }
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const findCommentIdComment = async ({ commentId }) => {
+  try {
+    const result = await Review.find({ _id: commentId }).lean();
+
+    if (!result) {
+      throw new Error('리뷰 조회 실패');
+    }
+    return result;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
@@ -60,6 +144,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
 
 module.exports = {
   createReview,
+  updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
 };

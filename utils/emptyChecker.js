@@ -1,4 +1,5 @@
 const emptyChecker = (param) => {
+  // [[]] , [{}];
   const objectValues = Object.values({ ...param });
 
   return (
@@ -6,8 +7,9 @@ const emptyChecker = (param) => {
     objectValues.includes(0) ||
     objectValues.includes(undefined) ||
     objectValues.includes(null) ||
-    objectValues.includes([]) ||
-    objectValues.includes({})
+    objectValues.some(
+      (item) => JSON.stringify(item) === '[]' || JSON.stringify(item) === '{}'
+    )
   );
 };
 

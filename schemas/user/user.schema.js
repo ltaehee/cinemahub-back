@@ -2,7 +2,6 @@ const mongoose = require('mongoose');
 const { ObjectId } = mongoose.Schema.Types;
 
 // 좋아요 누른 유저 체크
-
 const userSchema = new mongoose.Schema(
   {
     email: {

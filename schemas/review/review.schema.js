@@ -25,22 +25,8 @@ const reviewSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    like: {
-      type: Boolean,
-      default: false,
-    },
-    dislike: {
-      type: Boolean,
-      default: false,
-    },
-    totalLike: {
-      type: Number,
-      default: 1,
-    },
-    totalUnlike: {
-      type: Number,
-      default: 1,
-    },
+    like: [{ type: ObjectId, ref: 'User' }],
+    dislike: [{ type: ObjectId, ref: 'User' }],
   },
   {
     timestamps: {
