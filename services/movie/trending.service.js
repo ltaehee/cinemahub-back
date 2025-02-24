@@ -34,6 +34,10 @@ const fetchTrendingMovies = async (type) => {
         trailer: movieDetails.trailer,
         logoPath: movieDetails.logoPath,
         koreanRating: movieDetails.koreanRating,
+        imgPath: movieDetails.imgPath,
+        runtime: movieDetails.runtime,
+        actor: movieDetails.actor,
+        director: movieDetails.director,
       });
     }
 
