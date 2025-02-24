@@ -6,7 +6,7 @@ const popularPersonCacheSchema = new mongoose.Schema({
   profilePath: { type: String },
   knownFor: [{ movieId: Number, title: String, posterPath: String }],
   popularity: { type: Number },
-  updatedAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now, index: { expires: "1d" } },
 });
 
 module.exports = mongoose.model(
