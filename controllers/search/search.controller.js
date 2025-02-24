@@ -49,6 +49,7 @@ searchController.get("/movie", async (req, res) => {
   }
 });
 
+// 유저정보 검색
 searchController.get("/user", async (req, res) => {
   const { keyword } = req.query;
   console.log("nickname: ", keyword);

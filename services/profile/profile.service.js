@@ -3,7 +3,7 @@ const User = require("../../schemas/user/user.schema");
 // 유저 정보 가져오기
 const findUserByNickname = async (nickname) => {
   try {
-    const user = await User.findOne({ nickname })
+    const user = await User.findOne({ nickname, deletedAt: null })
       .populate("followers", "nickname email profileImg")
       .populate("following", "nickname email profileImg")
       .lean();
@@ -15,7 +15,7 @@ const findUserByNickname = async (nickname) => {
 
 const findUserByEmail = async (email) => {
   try {
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email, deletedAt: null })
       .populate("followers", "nickname email profileImg")
       .populate("following", "nickname email profileImg");
     return user;

@@ -27,7 +27,7 @@ const findUserEmailBoolean = async ({ email }) => {
 
 const findUserNicknameBoolean = async ({ nickname }) => {
   try {
-    const result = await User.find({ nickname }).lean();
+    const result = await User.find({ nickname, deletedAt: null }).lean();
     // []이 나옴 true로 인식
     return result.length !== 0 && result;
   } catch (e) {
@@ -40,6 +40,7 @@ const findUserNicknameByKeyword = async (keyword) => {
   try {
     const result = await User.find({
       nickname: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 이름 검색
+      deletedAt: null, // 삭제되지 않은 유저만 검색
     });
     return result;
   } catch (err) {
