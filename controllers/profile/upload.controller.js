@@ -5,17 +5,17 @@ const { S3_BUCKET_NAME } = require("../../consts/app");
 const getPresignedUrl = require("express").Router();
 
 getPresignedUrl.get("/presigned-url", async (req, res) => {
-  const { filename, fileType } = req.query;
-
-  if (!filename || !fileType) {
+  const { fileName } = req.query;
+  console.log("filename: ", fileName);
+  if (!fileName) {
     return res.status(400).json({ error: "파일 이름이 필요합니다." });
   }
-
+  const timestamp = Date.now();
   const params = {
     Bucket: S3_BUCKET_NAME,
-    Key: `images/${filename}`,
-    ContentType: fileType,
-    ACL: "public-read",
+    Key: `images/${fileName}`,
+    // ContentType: fileType,
+    // ACL: "public-read",
   };
 
   try {
