@@ -1,4 +1,3 @@
-const User = require("../../schemas/user/user.schema");
 const { findUserByEmail } = require("./profile.service");
 const { tmdbApi } = require("../tmdbApi");
 
