@@ -56,7 +56,6 @@ favoritesController.get("/check", async (req, res) => {
     const result = await checkFavorite(email, favoriteType, favoriteId);
     return res.status(200).json(result);
   } catch (error) {
-    console.error("즐겨찾기 상태 확인 오류:", error);
     return res.status(500).json({ message: error.message });
   }
 });
