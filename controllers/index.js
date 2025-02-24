@@ -21,6 +21,6 @@ apiController.use("/follow", followController);
 apiController.use("/review", reviewController);
 apiController.use("/admin", adminController);
 apiController.use("/favorite", favoritesController);
-apiController.get("/upload", getPresignedUrl);
+apiController.use("/upload", getPresignedUrl);
 
 module.exports = apiController;
