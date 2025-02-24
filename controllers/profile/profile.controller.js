@@ -31,6 +31,7 @@ profileController.get("/me", async (req, res) => {
       followers: loggedInUser.followers || [],
       following: loggedInUser.following || [],
       favorites: loggedInUser.favorites || [],
+      role: loggedInUser.role || "user",
     });
   } catch (error) {
     console.error("로그인한 유저 프로필 조회 오류:", error);
