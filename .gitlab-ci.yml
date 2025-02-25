@@ -9,8 +9,8 @@ stages:
   - deploy
 
 variables:
-  TAG_LATEST: insoo/elice-test-ci:latest
-  TAG_COMMIT: insoo/elice-test-ci:$CI_COMMIT_SHORT_SHA
+  TAG_LATEST: qkrcksgh5654/elice-test-ci:latest
+  TAG_COMMIT: qkrcksgh5654/elice-test-ci:$CI_COMMIT_SHORT_SHA
 
 build_and_publish:
   stage: build_and_publish
