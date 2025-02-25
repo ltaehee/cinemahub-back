@@ -39,6 +39,7 @@ const fetchMovieDetails = async (movieId) => {
       backdrop_path,
       poster_path,
       overview,
+      tagline,
     } = data;
 
     const genreIds = genres.map((genre) => genre.id);
@@ -93,6 +94,7 @@ const fetchMovieDetails = async (movieId) => {
       runtime,
       actor,
       director,
+      tagline,
       updatedAt: new Date(),
     };
 
