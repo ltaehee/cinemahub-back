@@ -24,7 +24,7 @@ const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
       .populate('userId', 'profile nickname')
       .lean();
 
-    if (!result) {
+    if (result.length === 0) {
       throw new Error('영화 리뷰 조회 실패');
     }
     return result;
@@ -99,7 +99,11 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
 
     if (likes.like === false && likes.dislike === false) {
       // 형변환 ...
-      if (result[0].like.some((item) => JSON.stringify(item) === `${userId}`)) {
+      if (
+        result[0].like.some(
+          (item) => JSON.stringify(item) === JSON.stringify(userId)
+        )
+      ) {
         await Review.updateOne(
           { _id: commentId },
           {
@@ -112,7 +116,11 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
       }
 
       // 형변환 ...
-      if (result[0].like.some((item) => JSON.stringify(item) === `${userId}`)) {
+      if (
+        result[0].dislike.some(
+          (item) => JSON.stringify(item) === JSON.stringify(userId)
+        )
+      ) {
         await Review.updateOne(
           { _id: commentId },
           {
@@ -144,6 +152,7 @@ const findCommentIdComment = async ({ commentId }) => {
 
 module.exports = {
   createReview,
+  findCommentIdComment,
   updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,

@@ -5,6 +5,7 @@ const {
   updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
+  findCommentIdComment,
 } = require('../../services/review/review.service');
 const emptyChecker = require('../../utils/emptyChecker');
 
@@ -66,10 +67,17 @@ reviewController.post('/register', checklogin, async (req, res) => {
 reviewController.post('/totalcomments', async (req, res) => {
   const { movieId } = req.body;
 
+  let email = null;
+  if (req.session.user) {
+    email = req.session.user.email;
+  }
+
+  const userId = await findUserEmailId({ email });
+
   const reviews = await findMovieIdCommentsArray({ movieId });
   const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
 
-  if (!reviews) {
+  if (reviews.length === 0) {
     throw new Error('전체 리뷰 등록 실패');
   }
 
@@ -77,11 +85,29 @@ reviewController.post('/totalcomments', async (req, res) => {
     throw new Error('별점 조회 실패');
   }
 
+  const finedReview = reviews.map((review) => ({
+    ...review,
+    totalLike: review.like.length || 1,
+    totalDisLike: review.dislike.length || 1,
+    like:
+      review.like.length !== 0
+        ? review.like.some(
+            (item) => JSON.stringify(item) === JSON.stringify(userId)
+          )
+        : false,
+    dislike:
+      review.dislike.length !== 0
+        ? review.dislike.some(
+            (item) => JSON.stringify(item) === JSON.stringify(userId)
+          )
+        : false,
+  }));
+
   try {
     return res.json({
       result: true,
       data: {
-        reviews,
+        reviews: finedReview,
         totalstarpoint: totalstarpoint.totalStarScore.toFixed(1),
       },
       message: '전체 리뷰 조회 성공',
@@ -128,8 +154,6 @@ reviewController.post('/likes', checklogin, async (req, res) => {
       likes,
     });
 
-    console.log(result);
-
     if (!result) {
       return res.status(500).json({
         result: false,
@@ -139,7 +163,7 @@ reviewController.post('/likes', checklogin, async (req, res) => {
 
     return res.json({
       result: true,
-      message: '좋아요/싫어요 등록 성공',
+      message: result.message,
     });
   } catch (e) {
     return res.json({
