@@ -1,6 +1,6 @@
-const User = require("../../schemas/user/user.schema");
+const User = require('../../schemas/user/user.schema');
 
-const createUser = async ({ email, nickname, profile, role = "user" }) => {
+const createUser = async ({ email, nickname, profile, role = 'user' }) => {
   try {
     const result = await User.create({
       email,
@@ -8,7 +8,7 @@ const createUser = async ({ email, nickname, profile, role = "user" }) => {
       profile,
       role,
     });
-    if (!result) throw new Error("유저 생성 실패");
+    if (!result) throw new Error('유저 생성 실패');
     return result.toObject();
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
@@ -20,6 +20,16 @@ const findUserEmailBoolean = async ({ email }) => {
     const result = await User.find({ email }).lean();
     // []이 나옴 true로 인식
     return result.length !== 0 && result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const findUserEmailId = async ({ email }) => {
+  try {
+    const result = await User.find({ email }).lean();
+    // []이 나옴 true로 인식
+    return result.length !== 0 && String(result[0]._id);
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
@@ -39,12 +49,12 @@ const findUserNicknameBoolean = async ({ nickname }) => {
 const findUserNicknameByKeyword = async (keyword) => {
   try {
     const result = await User.find({
-      nickname: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 이름 검색
+      nickname: { $regex: `^${keyword}`, $options: 'i' }, // keyword로 시작하는 모든 이름 검색
       deletedAt: null, // 삭제되지 않은 유저만 검색
     });
     return result;
   } catch (err) {
-    console.error("유저 검색 오류: ", err);
+    console.error('유저 검색 오류: ', err);
     throw new Error(err.message);
   }
 };
@@ -59,12 +69,12 @@ const deleteUserByEmail = async (email) => {
     );
 
     if (!result) {
-      throw new Error("해당 이메일의 유저를 찾을 수 없습니다.");
+      throw new Error('해당 이메일의 유저를 찾을 수 없습니다.');
     }
 
     return result;
   } catch (err) {
-    console.error("유저 삭제중 오류 발생: ", err);
+    console.error('유저 삭제중 오류 발생: ', err);
     throw new Error(err.message);
   }
 };
@@ -79,7 +89,7 @@ const deleteUsersByEmails = async (emails) => {
 
     return result;
   } catch (err) {
-    console.error("다중 유저 삭제중 오류 발생: ", err);
+    console.error('다중 유저 삭제중 오류 발생: ', err);
     throw new Error(err.message);
   }
 };
@@ -88,6 +98,7 @@ module.exports = {
   createUser,
   findUserEmailBoolean,
   findUserNicknameBoolean,
+  findUserEmailId,
   findUserNicknameByKeyword,
   deleteUserByEmail,
   deleteUsersByEmails,
