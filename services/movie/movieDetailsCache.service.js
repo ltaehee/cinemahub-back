@@ -21,16 +21,25 @@ const fetchMovieDetails = async (movieId) => {
     const detailsResponse = await tmdbApi.get(`/movie/${movieId}`, {
       params: {
         language: "ko-KR",
-        append_to_response: "images,videos,credits,release_dates",
+        append_to_response: "videos,credits,release_dates",
         include_image_language: "ko,null",
       },
     });
 
     const { data } = detailsResponse;
 
+    const {
+      runtime,
+      genres,
+      title,
+      release_date,
+      backdrop_path,
+      poster_path,
+      overview,
+    } = data;
+
     const logoPath =
       data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
-      data.images?.logos?.find((logo) => logo.iso_639_1 === "en")?.file_path ??
       data.images?.logos?.[0]?.file_path ??
       null;
 
@@ -39,10 +48,6 @@ const fetchMovieDetails = async (movieId) => {
     );
     const koreanRating =
       koreaRelease?.release_dates?.[0]?.certification ?? "등급 정보 없음";
-
-    const imgPath =
-      data.images?.backdrops?.map((image) => image.file_path) ?? [];
-    const { runtime, genres } = data;
 
     const trailers = data.videos.results.filter(
       (video) => video.type === "Trailer"
@@ -73,14 +78,18 @@ const fetchMovieDetails = async (movieId) => {
 
     const movieDetails = {
       movieId,
-      logoPath,
-      imgPath,
-      runtime,
+      title,
+      overview,
+      release_date,
+      backdrop_path,
+      poster_path,
       genres,
       trailer,
+      logoPath,
+      koreanRating,
+      runtime,
       actor,
       director,
-      koreanRating,
       updatedAt: new Date(),
     };
 

@@ -89,12 +89,21 @@ cron.schedule("0 0 * * *", () => {
 });
 
 // 검색해서 영화 정보 가져오기
-const findMovieByKeyword = async (keyword) => {
+const findMovieByKeyword = async (keyword, page = 1, limit = 16) => {
   try {
     const movies = await Movie.find({
+      title: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 영화 검색
+    })
+      .skip((page - 1) * limit) // 이전 페이지 데이터 건너뛰기
+      .limit(limit);
+
+    const totalCount = await Movie.countDocuments({
       title: { $regex: `^${keyword}`, $options: "i" },
-    }).limit(10); // 검색 10개로 제한
-    return movies;
+    });
+
+    console.log("totalCount: ", totalCount);
+
+    return { movies, totalCount };
   } catch (err) {
     console.error("영화 검색 오류: ", err);
     throw new Error(err.message);

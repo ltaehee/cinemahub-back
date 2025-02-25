@@ -5,20 +5,31 @@
 
 # 파이프라인 단계 정의
 stages:
-  - build
+  - build_and_publish
+  - deploy
 
-build:
-  stage: build
+variables:
+  TAG_LATEST: insoo/elice-test-ci:latest
+  TAG_COMMIT: insoo/elice-test-ci:$CI_COMMIT_SHORT_SHA
 
+build_and_publish:
+  stage: build_and_publish
   script:
-    - echo "Start build"
-    - docker stop cinema-hub-container || true
-    - docker rm cinema-hub-container || true
-    - docker rmi cinema-hub-image || true
+    - docker build -t $TAG_COMMIT -t $TAG_LATEST .
+    - docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PAT
+    - docker push $TAG_COMMIT
+    - docker push $TAG_LATEST
 
-    - docker build -t cinema-hub-image .
-    - docker run -d --name cinema-hub-container -p 80:80 cinema-hub-image
-  tags:
-    - backend
+deploy:
+  stage: deploy
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PAT"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker pull $TAG_COMMIT"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker container rm -f cinemahub-back || true"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "docker run -d -p 3000:3000 --name cinemahub-back $TAG_COMMIT"
+  environment:
+    name: production
   only:
     - develop

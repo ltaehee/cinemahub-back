@@ -2,11 +2,16 @@ const mongoose = require("mongoose");
 
 const movieDetailsCacheSchema = new mongoose.Schema({
   movieId: { type: Number, required: true, unique: true },
-  imgPath: [String],
-  logoPath: String,
-  runtime: Number,
+  title: String,
+  overview: String,
+  release_date: String,
+  backdrop_path: String,
+  poster_path: String,
   genres: [{ id: Number, name: String }],
   trailer: String,
+  logoPath: String,
+  koreanRating: String,
+  runtime: Number,
   actor: [
     {
       id: Number,
@@ -22,8 +27,11 @@ const movieDetailsCacheSchema = new mongoose.Schema({
       profilePath: String,
     },
   ],
-  koreanRating: String,
   updatedAt: { type: Date, default: Date.now, index: { expires: "7d" } },
 });
 
-module.exports = mongoose.model("MovieDetailsCache", movieDetailsCacheSchema);
+const movieDetailsCache = mongoose.model(
+  "MovieDetailsCache",
+  movieDetailsCacheSchema
+);
+module.exports = movieDetailsCache;

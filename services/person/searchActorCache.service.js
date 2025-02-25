@@ -28,8 +28,13 @@ const findActorByName = async (name) => {
       throw new Error("배우를 찾을 수 없습니다.");
     }
 
+    console.log("배우, 감독: ", searchResponse.data.results);
     const filteredActors = searchResponse.data.results.filter(
-      (person) => person.known_for_department === "Acting"
+      (person) =>
+        (person.known_for_department === "Acting" &&
+          person.known_for.some((work) => work.media_type === "movie")) || // 영화 배우 필터
+        (person.known_for_department === "Directing" &&
+          person.known_for.some((work) => work.media_type === "movie")) // 영화 감독 필터
     );
 
     // api 결과를 캐시에 저장

@@ -1,4 +1,4 @@
-const { exit } = require('node:process');
+const { exit } = require("node:process");
 
 const urlRegex =
   /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*(\:[0-9]+)?(\/[\w\-./?%&=]*)?$/;
@@ -11,26 +11,26 @@ const mongooseRegex =
 const vaildateEnv = (type, targetEnv) => {
   if (targetEnv) {
     switch (type) {
-      case 'string':
+      case "string":
         if (stringRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
 
-      case 'number':
+      case "number":
         if (numberRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
-      case 'url':
+      case "url":
         if (urlRegex.test(targetEnv)) {
           return targetEnv;
         } else {
           return process.exit(1);
         }
-      case 'mongoose':
+      case "mongoose":
         if (mongooseRegex.test(targetEnv)) {
           return targetEnv;
         } else {
@@ -39,9 +39,9 @@ const vaildateEnv = (type, targetEnv) => {
       default:
         return;
     }
-  } else {
+  } /* else {
     return process.exit(1);
-  }
+  } */
 };
 
 module.exports = {
