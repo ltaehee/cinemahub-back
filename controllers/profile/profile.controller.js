@@ -29,7 +29,7 @@ profileController.get("/me", async (req, res) => {
       email: loggedInUser.email,
       nickname: loggedInUser.nickname,
       introduce: loggedInUser.introduce || "",
-      profileImg: loggedInUser.profileImg || "",
+      profile: loggedInUser.profile || "",
       followers: loggedInUser.followers || [],
       following: loggedInUser.following || [],
       favorites: loggedInUser.favorites || [],
@@ -115,13 +115,14 @@ profileController.patch("/profile-update", async (req, res) => {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
-    const { name, intro, profileImg } = req.body;
-    console.log("수정할 데이터", { name, intro, profileImg });
+    const { nickname, introduce, profile } = req.body;
+    console.log("수정할 데이터", { nickname, introduce, profile });
+    console.log("req.body", req.body);
 
     const updatedUser = await updateUserProfile(user._id, {
-      nickname: name,
-      introduce: intro,
-      profile: profileImg,
+      nickname,
+      introduce,
+      profile,
     });
 
     console.log("업데이트된 사용자", updatedUser);
