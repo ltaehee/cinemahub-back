@@ -87,8 +87,8 @@ reviewController.post('/totalcomments', async (req, res) => {
 
   const finedReview = reviews.map((review) => ({
     ...review,
-    totalLike: review.like.length || 1,
-    totalDisLike: review.dislike.length || 1,
+    totalLike: review.like.length || 0,
+    totalDisLike: review.dislike.length || 0,
     like:
       review.like.length !== 0
         ? review.like.some(
@@ -161,8 +161,21 @@ reviewController.post('/likes', checklogin, async (req, res) => {
       });
     }
 
+    const comment = await findCommentIdComment({ commentId });
+
+    if (result.length === 0) {
+      return res.status(500).json({
+        result: false,
+        message: '리뷰를 참조하지 못했습니다.',
+      });
+    }
+
     return res.json({
       result: true,
+      data: {
+        totalLike: comment[0].like.length,
+        totalDisLike: comment[0].dislike.length,
+      },
       message: result.message,
     });
   } catch (e) {

@@ -125,7 +125,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
           { _id: commentId },
           {
             $pull: {
-              dislike: String(userId),
+              dislike: userId,
             },
           }
         );
