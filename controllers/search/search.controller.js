@@ -1,25 +1,25 @@
 const searchController = require("express").Router();
 const { findMovieByKeyword } = require("../../services/movie/movie.service");
 const {
-  findActorByName,
+  findPeopleByName,
 } = require("../../services/person/searchActorCache.service");
 const {
   findUserNicknameByKeyword,
 } = require("../../services/user/user.service");
 
-// 배우정보 api 호출로 가져오기
-searchController.get("/actor", async (req, res) => {
-  const { name } = req.query;
+// 배우, 감독정보 api 호출로 가져오기
+searchController.get("/people", async (req, res) => {
+  const { name, page = 1 } = req.query;
 
   if (!name) {
     return res.status(400).json({ error: "배우 이름을 입력하세요" });
   }
 
   try {
-    const actorData = await findActorByName(name);
-    return res.json(actorData);
+    const result = await findPeopleByName(name, Number(page));
+    return res.json(result);
   } catch (err) {
-    res.status(500).json({ err: "배우 정보 조회 실패" });
+    res.status(500).json({ err: "배우,감독 정보 조회 실패" });
   }
 });
 

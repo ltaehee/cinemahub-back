@@ -110,6 +110,22 @@ const findMovieByKeyword = async (keyword, page = 1, limit = 16) => {
   }
 };
 
+// 영화ID로 DB에 저장된 영화 찾기
+const findMoviesByTmdbIds = async (tmdbMovieIds) => {
+  try {
+    const movies = await Movie.find({ movieId: { $in: tmdbMovieIds } });
+
+    if (movies.length === 0) {
+      console.log("일치하는 영화가 없습니다.");
+      return [];
+    }
+    return movies;
+  } catch (err) {
+    console.error("DB에서 영화 조회 중 오류 발생: ", err);
+    throw new Error("영화 조회 실패");
+  }
+};
 module.exports = {
   findMovieByKeyword,
+  findMoviesByTmdbIds,
 };
