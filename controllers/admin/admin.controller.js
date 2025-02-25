@@ -1,6 +1,7 @@
 const {
   deleteUserByEmail,
   deleteUsersByEmails,
+  getUsers,
 } = require("../../services/user/user.service");
 
 const adminController = require("express").Router();
@@ -30,4 +31,14 @@ adminController.delete("/users", async (req, res) => {
   }
 });
 
+adminController.get("/users", async (req, res) => {
+  const { page, limit } = req.query;
+
+  try {
+    const result = await getUsers(page, limit);
+    return res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: "서버 오류", error: err.message });
+  }
+});
 module.exports = adminController;

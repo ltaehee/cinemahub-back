@@ -43,7 +43,7 @@ const findPeopleByName = async (name, page = 1) => {
           person.known_for.some((work) => work.media_type === "movie")) // 영화 감독 필터
     );
 
-    // 배우별 known_for에서 중복 영화 제거 (이전 코드에 없던 부분 추가)
+    // 배우별 known_for에서 중복 영화 제거
     filteredPeoples.forEach((people) => {
       people.known_for = Array.from(
         new Map(people.known_for.map((movie) => [movie.id, movie])).values()
@@ -75,7 +75,6 @@ const findPeopleByName = async (name, page = 1) => {
     const finalMovies = uniqueMovies.filter((movie) =>
       matchedMovies.some((dbMovie) => dbMovie.movieId === movie.id)
     );
-    // console.log("DB에 존재하는 최종 영화 리스트: ", finalMovies);
 
     // 배우 정보에서 DB에 있는 영화만 포함
     const finalPeoples = filteredPeoples.map((people) => ({
