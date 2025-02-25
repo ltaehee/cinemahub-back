@@ -10,7 +10,6 @@ getPresignedUrl.get("/presigned-url", async (req, res) => {
   if (!fileName) {
     return res.status(400).json({ error: "파일 이름이 필요합니다." });
   }
-  const timestamp = Date.now();
   const params = {
     Bucket: S3_BUCKET_NAME,
     Key: `images/${fileName}`,

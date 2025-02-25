@@ -1,5 +1,5 @@
-const Review = require('../../schemas/review/review.schema');
-const emptyChecker = require('../../utils/emptyChecker');
+const Review = require("../../schemas/review/review.schema");
+const emptyChecker = require("../../utils/emptyChecker");
 
 const createReview = async ({ userId, content, starpoint, image, movieId }) => {
   try {
@@ -8,7 +8,7 @@ const createReview = async ({ userId, content, starpoint, image, movieId }) => {
     ).toObject();
 
     if (!result) {
-      throw new Error('리뷰 등록 실패');
+      throw new Error("리뷰 등록 실패");
     }
     return result;
   } catch (e) {
@@ -21,11 +21,11 @@ const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
     const result = await Review.find({ movieId })
       .skip(skip)
       .limit(limit)
-      .populate('userId', 'profile nickname')
+      .populate("userId", "profile nickname")
       .lean();
 
     if (result.length === 0) {
-      throw new Error('영화 리뷰 조회 실패');
+      throw new Error("영화 리뷰 조회 실패");
     }
     return result;
   } catch (e) {
@@ -44,7 +44,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       {
         $group: {
           _id: null,
-          totalStarScore: { $avg: '$starpoint' },
+          totalStarScore: { $avg: "$starpoint" },
         },
       },
     ]);
@@ -74,9 +74,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '좋아요를 눌렀어요.' };
+        return { message: "좋아요를 눌렀어요." };
       } else {
-        return { message: '이미 좋아요를 눌렀어요.' };
+        return { message: "이미 좋아요를 눌렀어요." };
       }
     }
 
@@ -91,9 +91,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '싫어요를 눌렀어요.' };
+        return { message: "싫어요를 눌렀어요." };
       } else {
-        return { message: '이미 싫어요를 눌렀어요.' };
+        return { message: "이미 싫어요를 눌렀어요." };
       }
     }
 
@@ -112,7 +112,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '좋아요 취소' };
+        return { message: "좋아요 취소" };
       }
 
       // 형변환 ...
@@ -129,7 +129,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '싫어요 취소' };
+        return { message: "싫어요 취소" };
       }
     }
   } catch (e) {
@@ -142,8 +142,18 @@ const findCommentIdComment = async ({ commentId }) => {
     const result = await Review.find({ _id: commentId }).lean();
 
     if (!result) {
-      throw new Error('리뷰 조회 실패');
+      throw new Error("리뷰 조회 실패");
     }
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const findUserReviews = async ({ userId, skip, limit }) => {
+  try {
+    const result = await Review.find({ userId }).skip(skip).limit(limit).lean();
+
     return result;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
@@ -156,4 +166,5 @@ module.exports = {
   updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
+  findUserReviews,
 };
