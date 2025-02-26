@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const personDetailsCacheSchema = new mongoose.Schema({
-  personId: { type: Number, required: true, unique: true },
+  personId: { type: String, required: true, unique: true },
   imgPath: [String],
   birthday: { type: String },
   deathday: { type: String | null },

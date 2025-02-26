@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const PersonDetailsCreditsSchema = new mongoose.Schema({
-  personId: { type: Number, required: true },
+  personId: { type: String, required: true },
   credits: [
     {
       movieId: { type: Number, required: true },

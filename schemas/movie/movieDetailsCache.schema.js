@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const movieDetailsCacheSchema = new mongoose.Schema({
-  movieId: { type: Number, required: true, unique: true },
+  movieId: { type: String, required: true, unique: true },
   title: String,
   overview: String,
   releaseDate: String,
