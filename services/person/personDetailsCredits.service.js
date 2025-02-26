@@ -36,17 +36,17 @@ const fetchPersonDetailsCredits = async (personId, page, limit) => {
     const { cast, crew } = data;
 
     const movieIds = await Movie.find({}, { movieId: 1 }).then((movies) =>
-      movies.map((movie) => movie.movieId)
+      movies.map((movie) => String(movie.movieId))
     );
 
     const creditsMap = new Map();
 
     [...cast, ...crew]
-      .filter((movie) => movieIds.includes(movie.id))
+      .filter((movie) => movieIds.includes(String(movie.id)))
       .forEach((movie) => {
         if (!creditsMap.has(movie.id)) {
           creditsMap.set(movie.id, {
-            movieId: movie.id,
+            movieId: String(movie.id),
             title: movie.title,
             releaseDate: movie.release_date,
             posterPath: movie.poster_path,
