@@ -25,6 +25,16 @@ const reviewSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    reportlist: [
+      {
+        user: { type: ObjectId, ref: 'User' },
+        reason: { type: String },
+      },
+    ],
+    reportstatus: {
+      type: Boolean,
+      default: false,
+    },
     like: [{ type: ObjectId, ref: 'User' }],
     dislike: [{ type: ObjectId, ref: 'User' }],
   },
@@ -34,6 +44,7 @@ const reviewSchema = new mongoose.Schema(
     },
   }
 );
+// 리뷰 신고 상태값
 
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;
