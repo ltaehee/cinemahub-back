@@ -22,6 +22,26 @@ const createReview = async ({
   }
 };
 
+const createReport = async ({ commentId, userId, reason }) => {
+  try {
+    await Review.updateOne(
+      { _id: commentId },
+      {
+        $push: {
+          reportlist: {
+            userId,
+            reason,
+          },
+        },
+      }
+    );
+
+    return { message: '신고 접수 성공' };
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
 const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
   try {
     const result = await Review.find({ movieId })
@@ -165,6 +185,7 @@ const findUserReviews = async ({ userId, skip, limit }) => {
 
 module.exports = {
   createReview,
+  createReport,
   findCommentIdComment,
   updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
