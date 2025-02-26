@@ -125,7 +125,7 @@ const findMoviesByTmdbIds = async (tmdbMovieIds) => {
     throw new Error("영화 조회 실패");
   }
 };
-fetchMovies();
+
 module.exports = {
   findMovieByKeyword,
   findMoviesByTmdbIds,
