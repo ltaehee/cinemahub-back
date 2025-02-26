@@ -12,10 +12,10 @@ const emptyChecker = require('../../utils/emptyChecker');
 const reviewController = require('express').Router();
 
 reviewController.post('/register', checklogin, async (req, res) => {
-  const { movieId, image, content, starpoint } = req.body;
+  const { movieId, imgUrls, content, starpoint } = req.body;
   const { email } = req.session.user;
 
-  if (emptyChecker({ movieId, image, content, starpoint })) {
+  if (emptyChecker({ movieId, imgUrls, content, starpoint })) {
     return res
       .status(400)
       .json({ result: false, message: '리뷰 내용 작성과 별점을 등록해주세요' });
@@ -41,7 +41,7 @@ reviewController.post('/register', checklogin, async (req, res) => {
     const review = await createReview({
       userId: _id,
       movieId,
-      image,
+      imgUrls,
       content,
       starpoint,
     });
@@ -72,38 +72,43 @@ reviewController.post('/totalcomments', async (req, res) => {
     email = req.session.user.email;
   }
 
-  const userId = await findUserEmailId({ email });
-
-  const reviews = await findMovieIdCommentsArray({ movieId });
-  const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
-
-  if (reviews.length === 0) {
-    throw new Error('전체 리뷰 등록 실패');
-  }
-
-  if (!totalstarpoint) {
-    throw new Error('별점 조회 실패');
-  }
-
-  const finedReview = reviews.map((review) => ({
-    ...review,
-    totalLike: review.like.length || 0,
-    totalDisLike: review.dislike.length || 0,
-    like:
-      review.like.length !== 0
-        ? review.like.some(
-            (item) => JSON.stringify(item) === JSON.stringify(userId)
-          )
-        : false,
-    dislike:
-      review.dislike.length !== 0
-        ? review.dislike.some(
-            (item) => JSON.stringify(item) === JSON.stringify(userId)
-          )
-        : false,
-  }));
-
   try {
+    const userId = await findUserEmailId({ email });
+    const reviews = await findMovieIdCommentsArray({ movieId });
+    const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
+
+    if (reviews.length === 0) {
+      return res.status(404).json({
+        result: false,
+        message: '조회내역이 없습니다.',
+      });
+    }
+
+    if (!totalstarpoint.totalStarScore) {
+      return res.status(404).json({
+        result: false,
+        message: '별점 내역이 없습니다.',
+      });
+    }
+
+    const finedReview = reviews.map((review) => ({
+      ...review,
+      totalLike: review.like.length || 0,
+      totalDisLike: review.dislike.length || 0,
+      like:
+        review.like.length !== 0
+          ? review.like.some(
+              (item) => JSON.stringify(item) === JSON.stringify(userId)
+            )
+          : false,
+      dislike:
+        review.dislike.length !== 0
+          ? review.dislike.some(
+              (item) => JSON.stringify(item) === JSON.stringify(userId)
+            )
+          : false,
+    }));
+
     return res.json({
       result: true,
       data: {

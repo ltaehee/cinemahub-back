@@ -1,10 +1,16 @@
 const Review = require('../../schemas/review/review.schema');
 const emptyChecker = require('../../utils/emptyChecker');
 
-const createReview = async ({ userId, content, starpoint, image, movieId }) => {
+const createReview = async ({
+  userId,
+  content,
+  starpoint,
+  imgUrls,
+  movieId,
+}) => {
   try {
     const result = (
-      await Review.create({ userId, content, starpoint, image, movieId })
+      await Review.create({ userId, content, starpoint, imgUrls, movieId })
     ).toObject();
 
     if (!result) {
@@ -24,9 +30,6 @@ const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
       .populate('userId', 'profile nickname')
       .lean();
 
-    if (result.length === 0) {
-      throw new Error('영화 리뷰 조회 실패');
-    }
     return result;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);

@@ -13,8 +13,8 @@ const reviewSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    image: {
-      type: String,
+    imgUrls: {
+      type: Array,
       required: true,
     },
     content: {
