@@ -153,10 +153,21 @@ const findCommentIdComment = async ({ commentId }) => {
   }
 };
 
+const findUserReviews = async ({ userId, skip, limit }) => {
+  try {
+    const result = await Review.find({ userId }).skip(skip).limit(limit).lean();
+
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
 module.exports = {
   createReview,
   findCommentIdComment,
   updateLikeCommentIdLikes,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
+  findUserReviews,
 };

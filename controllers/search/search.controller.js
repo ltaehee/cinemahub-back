@@ -1,25 +1,25 @@
 const searchController = require("express").Router();
 const { findMovieByKeyword } = require("../../services/movie/movie.service");
 const {
-  findActorByName,
+  findPeopleByName,
 } = require("../../services/person/searchActorCache.service");
 const {
   findUserNicknameByKeyword,
 } = require("../../services/user/user.service");
 
-// 배우정보 api 호출로 가져오기
-searchController.get("/actor", async (req, res) => {
-  const { name } = req.query;
+// 배우, 감독정보 api 호출로 가져오기
+searchController.get("/people", async (req, res) => {
+  const { name, page = 1 } = req.query;
 
   if (!name) {
     return res.status(400).json({ error: "배우 이름을 입력하세요" });
   }
 
   try {
-    const actorData = await findActorByName(name);
-    return res.json(actorData);
+    const result = await findPeopleByName(name, Number(page));
+    return res.json(result);
   } catch (err) {
-    res.status(500).json({ err: "배우 정보 조회 실패" });
+    res.status(500).json({ err: "배우,감독 정보 조회 실패" });
   }
 });
 
@@ -51,27 +51,32 @@ searchController.get("/movie", async (req, res) => {
 
 // 유저정보 검색
 searchController.get("/user", async (req, res) => {
-  const { keyword } = req.query;
-  console.log("nickname: ", keyword);
-
+  const { keyword, page, limit } = req.query;
+  console.log("page, limit: ", page, limit);
   if (!keyword) {
     return res.status(400).json({ error: "검색어를 입력하세요" });
   }
 
   try {
-    const user = await findUserNicknameByKeyword(keyword);
+    const user = await findUserNicknameByKeyword(keyword, page, limit);
 
-    if (!user) {
+    if (!user.users.length) {
       return res.status(404).json({ error: "유저를 찾을 수 없습니다." });
     }
 
-    const madeUser = user.map((prev) => ({
+    const madeUser = user.users.map((prev) => ({
       email: prev.email,
       nickname: prev.nickname,
       createdAt: prev.createdAt,
     }));
+    console.log("madeUser: ", madeUser);
 
-    return res.json(madeUser);
+    return res.json({
+      users: madeUser,
+      totalCount: user.totalCount,
+      currentPage: user.currentPage,
+      totalPages: user.totalPages,
+    });
   } catch (err) {
     res.status(500).json({ err: "유저 정보 조회 실패" });
   }

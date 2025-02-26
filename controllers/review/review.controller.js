@@ -6,8 +6,12 @@ const {
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findCommentIdComment,
+  findUserReviews,
 } = require('../../services/review/review.service');
 const emptyChecker = require('../../utils/emptyChecker');
+const {
+  findUserByNickname,
+} = require('../../services/profile/profile.service');
 
 const reviewController = require('express').Router();
 
@@ -187,6 +191,44 @@ reviewController.post('/likes', checklogin, async (req, res) => {
     return res.json({
       result: false,
       message: '좋아요/싫어요 등록 실패',
+    });
+  }
+});
+
+/* 리뷰조회 */
+reviewController.get('/user-reviews/:nickname', async (req, res) => {
+  const { nickname } = req.params;
+
+  try {
+    const targetUser = await findUserByNickname(nickname);
+    if (!targetUser) {
+      return res.status(404).json({
+        result: false,
+        message: '해당 닉네임의 사용자가 없습니다.',
+      });
+    }
+
+    // 해당 사용자의 리뷰 조회
+    const reviews = await findUserReviews({ userId: targetUser._id });
+    console.log('리뷰테스트', reviews);
+
+    // 리뷰 데이터 포맷팅
+    const finedReview = reviews.map((review) => ({
+      ...review,
+      totalLike: review.like.length || 0,
+      totalDisLike: review.dislike.length || 0,
+    }));
+
+    return res.json({
+      result: true,
+      data: finedReview,
+      message: '사용자 리뷰 조회 성공',
+    });
+  } catch (e) {
+    console.error('서버 오류:', e);
+    return res.status(500).json({
+      result: false,
+      message: '사용자 리뷰 조회에 실패했습니다.',
     });
   }
 });

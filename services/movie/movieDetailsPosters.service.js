@@ -6,6 +6,7 @@ const CACHE_TIME = 60 * 60 * 24 * 7;
 const fetchMovieDetailsPosters = async (movieId, page, limit) => {
   try {
     limit = Number(limit);
+    page = Number(page);
 
     const skip = page * limit;
     const cachedMovie = await MovieDetailsPosters.findOne({ movieId });

@@ -29,6 +29,9 @@ const fetchMovieDetails = async (movieId) => {
     const { data } = detailsResponse;
 
     const {
+      videos,
+      credits,
+      images,
       runtime,
       genres,
       title,
@@ -36,11 +39,14 @@ const fetchMovieDetails = async (movieId) => {
       backdrop_path,
       poster_path,
       overview,
+      tagline,
     } = data;
 
+    const genreIds = genres.map((genre) => genre.id);
+
     const logoPath =
-      data.images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
-      data.images?.logos?.[0]?.file_path ??
+      images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
+      images?.logos?.[0]?.file_path ??
       null;
 
     const koreaRelease = data.release_dates?.results?.find(
@@ -49,16 +55,14 @@ const fetchMovieDetails = async (movieId) => {
     const koreanRating =
       koreaRelease?.release_dates?.[0]?.certification ?? "등급 정보 없음";
 
-    const trailers = data.videos.results.filter(
-      (video) => video.type === "Trailer"
-    );
+    const trailers = videos.results.filter((video) => video.type === "Trailer");
     trailers.sort(
       (a, b) => new Date(a.published_at) - new Date(b.published_at)
     );
 
     const trailer = trailers.length > 0 ? trailers[0].key : null;
 
-    const actor = data.credits.cast
+    const actor = credits.cast
       .filter((person) => person.known_for_department === "Acting")
       .slice(0, 5)
       .map((actor) => ({
@@ -68,7 +72,7 @@ const fetchMovieDetails = async (movieId) => {
         profilePath: actor.profile_path,
       }));
 
-    const director = data.credits.crew
+    const director = credits.crew
       .filter((person) => person.job === "Director")
       .map((director) => ({
         id: director.id,
@@ -80,16 +84,17 @@ const fetchMovieDetails = async (movieId) => {
       movieId,
       title,
       overview,
-      release_date,
-      backdrop_path,
-      poster_path,
-      genres,
+      releaseDate: release_date,
+      backdropPath: backdrop_path,
+      posterPath: poster_path,
+      genreIds,
       trailer,
       logoPath,
       koreanRating,
       runtime,
       actor,
       director,
+      tagline,
       updatedAt: new Date(),
     };
 
