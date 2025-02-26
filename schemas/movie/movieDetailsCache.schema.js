@@ -15,7 +15,7 @@ const movieDetailsCacheSchema = new mongoose.Schema({
   tagline: String,
   actor: [
     {
-      id: Number,
+      id: String,
       name: String,
       character: String,
       profilePath: String,
@@ -23,7 +23,7 @@ const movieDetailsCacheSchema = new mongoose.Schema({
   ],
   director: [
     {
-      id: Number,
+      id: String,
       name: String,
       profilePath: String,
     },

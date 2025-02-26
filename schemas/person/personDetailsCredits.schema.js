@@ -4,7 +4,7 @@ const PersonDetailsCreditsSchema = new mongoose.Schema({
   personId: { type: String, required: true },
   credits: [
     {
-      movieId: { type: Number, required: true },
+      movieId: { type: String, required: true },
       title: { type: String, required: true },
       releaseDate: String,
       posterPath: String,
