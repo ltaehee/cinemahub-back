@@ -1,5 +1,5 @@
-const checklogin = require("../../middlewares/checklogin");
-const { findUserEmailId } = require("../../services/user/user.service");
+const checklogin = require('../../middlewares/checklogin');
+const { findUserEmailId } = require('../../services/user/user.service');
 const {
   createReview,
   updateLikeCommentIdLikes,
@@ -7,28 +7,28 @@ const {
   findMovieIdStarScoreSum,
   findCommentIdComment,
   findUserReviews,
-} = require("../../services/review/review.service");
-const emptyChecker = require("../../utils/emptyChecker");
+} = require('../../services/review/review.service');
+const emptyChecker = require('../../utils/emptyChecker');
 const {
   findUserByNickname,
-} = require("../../services/profile/profile.service");
+} = require('../../services/profile/profile.service');
 
-const reviewController = require("express").Router();
+const reviewController = require('express').Router();
 
-reviewController.post("/register", checklogin, async (req, res) => {
-  const { movieId, image, content, starpoint } = req.body;
+reviewController.post('/register', checklogin, async (req, res) => {
+  const { movieId, imgUrls, content, starpoint } = req.body;
   const { email } = req.session.user;
 
-  if (emptyChecker({ movieId, image, content, starpoint })) {
+  if (emptyChecker({ movieId, imgUrls, content, starpoint })) {
     return res
       .status(400)
-      .json({ result: false, message: "리뷰 내용 작성과 별점을 등록해주세요" });
+      .json({ result: false, message: '리뷰 내용 작성과 별점을 등록해주세요' });
   }
 
   if (!email) {
     return res.status(401).json({
       result: false,
-      message: "로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.",
+      message: '로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.',
     });
   }
 
@@ -38,37 +38,37 @@ reviewController.post("/register", checklogin, async (req, res) => {
     if (!_id) {
       return res.status(404).json({
         result: false,
-        message: "등록된 유저 정보가 없습니다",
+        message: '등록된 유저 정보가 없습니다',
       });
     }
 
     const review = await createReview({
       userId: _id,
       movieId,
-      image,
+      imgUrls,
       content,
       starpoint,
     });
 
     if (!review) {
-      throw new Error("리뷰 등록 실패");
+      throw new Error('리뷰 등록 실패');
     }
 
     return res.json({
       result: true,
       data: review,
-      message: "리뷰가 등록되었습니다.",
+      message: '리뷰가 등록되었습니다.',
     });
   } catch (e) {
     return res.json({
       result: false,
       data: {},
-      message: "리뷰 등록에 실패했습니다.",
+      message: '리뷰 등록에 실패했습니다.',
     });
   }
 });
 
-reviewController.post("/totalcomments", async (req, res) => {
+reviewController.post('/totalcomments', async (req, res) => {
   const { movieId } = req.body;
 
   let email = null;
@@ -76,69 +76,74 @@ reviewController.post("/totalcomments", async (req, res) => {
     email = req.session.user.email;
   }
 
-  const userId = await findUserEmailId({ email });
-
-  const reviews = await findMovieIdCommentsArray({ movieId });
-  const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
-
-  if (reviews.length === 0) {
-    throw new Error("전체 리뷰 등록 실패");
-  }
-
-  if (!totalstarpoint) {
-    throw new Error("별점 조회 실패");
-  }
-
-  const finedReview = reviews.map((review) => ({
-    ...review,
-    totalLike: review.like.length || 0,
-    totalDisLike: review.dislike.length || 0,
-    like:
-      review.like.length !== 0
-        ? review.like.some(
-            (item) => JSON.stringify(item) === JSON.stringify(userId)
-          )
-        : false,
-    dislike:
-      review.dislike.length !== 0
-        ? review.dislike.some(
-            (item) => JSON.stringify(item) === JSON.stringify(userId)
-          )
-        : false,
-  }));
-
   try {
+    const userId = await findUserEmailId({ email });
+    const reviews = await findMovieIdCommentsArray({ movieId });
+    const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
+
+    if (reviews.length === 0) {
+      return res.status(404).json({
+        result: false,
+        message: '조회내역이 없습니다.',
+      });
+    }
+
+    if (!totalstarpoint.totalStarScore) {
+      return res.status(404).json({
+        result: false,
+        message: '별점 내역이 없습니다.',
+      });
+    }
+
+    const finedReview = reviews.map((review) => ({
+      ...review,
+      totalLike: review.like.length || 0,
+      totalDisLike: review.dislike.length || 0,
+      like:
+        review.like.length !== 0
+          ? review.like.some(
+              (item) => JSON.stringify(item) === JSON.stringify(userId)
+            )
+          : false,
+      dislike:
+        review.dislike.length !== 0
+          ? review.dislike.some(
+              (item) => JSON.stringify(item) === JSON.stringify(userId)
+            )
+          : false,
+    }));
+
     return res.json({
       result: true,
       data: {
         reviews: finedReview,
         totalstarpoint: totalstarpoint.totalStarScore.toFixed(1),
       },
-      message: "전체 리뷰 조회 성공",
+      message: '전체 리뷰 조회 성공',
     });
   } catch (e) {
     return res.json({
       result: false,
-      message: "전체 리뷰 조회 실패",
+      message: '전체 리뷰 조회 실패',
     });
   }
 });
 
-reviewController.post("/likes", checklogin, async (req, res) => {
+reviewController.post('/likes', checklogin, async (req, res) => {
   const { commentId, likes } = req.body;
   const { email } = req.session.user;
 
   if (!email) {
     return res.status(401).json({
       result: false,
-      message: "로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.",
+      message: '로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.',
     });
   }
 
   if (emptyChecker({ commentId })) {
     return res.status(404).json({
       result: false,
-      message: "리뷰를 참조할 수 없습니다. 새로고침 해주세요.",
+      message: '리뷰를 참조할 수 없습니다. 새로고침 해주세요.',
     });
   }
 
@@ -148,7 +153,7 @@ reviewController.post("/likes", checklogin, async (req, res) => {
     if (!userId) {
       return res.status(404).json({
         result: false,
-        message: "일치하는 유저 정보를 찾을 수 없습니다.",
+        message: '일치하는 유저 정보를 찾을 수 없습니다.',
       });
     }
 
@@ -161,7 +166,7 @@ reviewController.post("/likes", checklogin, async (req, res) => {
     if (!result) {
       return res.status(500).json({
         result: false,
-        message: "좋아요/싫어요 등록에 실패했습니다.",
+        message: '좋아요/싫어요 등록에 실패했습니다.',
       });
     }
 
@@ -170,7 +175,7 @@ reviewController.post("/likes", checklogin, async (req, res) => {
     if (result.length === 0) {
       return res.status(500).json({
         result: false,
-        message: "리뷰를 참조하지 못했습니다.",
+        message: '리뷰를 참조하지 못했습니다.',
       });
     }
 
@@ -185,13 +190,13 @@ reviewController.post("/likes", checklogin, async (req, res) => {
   } catch (e) {
     return res.json({
       result: false,
-      message: "좋아요/싫어요 등록 실패",
+      message: '좋아요/싫어요 등록 실패',
     });
   }
 });
 
 /* 리뷰조회 */
-reviewController.get("/user-reviews/:nickname", async (req, res) => {
+reviewController.get('/user-reviews/:nickname', async (req, res) => {
   const { nickname } = req.params;
 
   try {
@@ -199,13 +204,13 @@ reviewController.get("/user-reviews/:nickname", async (req, res) => {
     if (!targetUser) {
       return res.status(404).json({
         result: false,
-        message: "해당 닉네임의 사용자가 없습니다.",
+        message: '해당 닉네임의 사용자가 없습니다.',
       });
     }
 
     // 해당 사용자의 리뷰 조회
     const reviews = await findUserReviews({ userId: targetUser._id });
-    console.log("리뷰테스트", reviews);
+    console.log('리뷰테스트', reviews);
 
     // 리뷰 데이터 포맷팅
     const finedReview = reviews.map((review) => ({
@@ -217,13 +222,13 @@ reviewController.get("/user-reviews/:nickname", async (req, res) => {
     return res.json({
       result: true,
       data: finedReview,
-      message: "사용자 리뷰 조회 성공",
+      message: '사용자 리뷰 조회 성공',
     });
   } catch (e) {
-    console.error("서버 오류:", e);
+    console.error('서버 오류:', e);
     return res.status(500).json({
       result: false,
-      message: "사용자 리뷰 조회에 실패했습니다.",
+      message: '사용자 리뷰 조회에 실패했습니다.',
     });
   }
 });
