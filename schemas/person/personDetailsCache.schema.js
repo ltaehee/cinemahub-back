@@ -2,12 +2,14 @@ const mongoose = require("mongoose");
 
 const personDetailsCacheSchema = new mongoose.Schema({
   personId: { type: String, required: true, unique: true },
-  imgPath: [String],
-  birthday: { type: String },
-  deathday: { type: String | null },
+  name: String,
+  profilePath: String,
+  birthday: String,
+  deathday: { type: String, default: null },
   gender: Number,
   department: String,
   placeOfBirth: String,
+  updatedAt: { type: Date, default: Date.now, index: { expires: "7d" } },
 });
 
 module.exports = mongoose.model(

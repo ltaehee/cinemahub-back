@@ -2,6 +2,9 @@ const {
   getPopularActors,
 } = require("../services/person/fetchPopularActors.service");
 const {
+  fetchPersonDetails,
+} = require("../services/person/personDetailsCache.service");
+const {
   fetchPersonDetailsCredits,
 } = require("../services/person/personDetailsCredits.service");
 const {
@@ -13,6 +16,18 @@ const personController = require("express").Router();
 personController.get("/popular", async (req, res) => {
   const actors = await getPopularActors();
   res.json(actors);
+});
+
+personController.get("/:personId", async (req, res) => {
+  const { personId } = req.params;
+
+  try {
+    const personDetails = await fetchPersonDetails(personId);
+    res.json(personDetails);
+  } catch (error) {
+    console.error(`영화인 상세 정보 요청 에러: ${error.message}`);
+    res.status(500).json({ message: "영화인 상세 정보 요청 에러" });
+  }
 });
 
 personController.get("/:personId/credits", async (req, res) => {
