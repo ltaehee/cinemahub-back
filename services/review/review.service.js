@@ -62,7 +62,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       {
         $match: {
           movieId,
-          deleted: null,
+          deletedAt: null,
         },
       },
       {
