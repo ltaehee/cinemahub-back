@@ -62,6 +62,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       {
         $match: {
           movieId,
+          deleted: null,
         },
       },
       {
@@ -183,11 +184,48 @@ const findUserReviews = async ({ userId, skip, limit }) => {
   }
 };
 
+const updateCommentIdComment = async ({
+  commentId,
+  content,
+  starpoint,
+  imgUrls,
+}) => {
+  try {
+    const result = await Review.updateOne(
+      { _id: commentId },
+      {
+        content,
+        starpoint,
+        imgUrls,
+      }
+    ).lean();
+
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const deleteCommentIdComment = async ({ commentId }) => {
+  try {
+    const result = await Review.updateOne(
+      { _id: commentId },
+      { deletedAt: new Date().toISOString() }
+    ).lean();
+
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
 module.exports = {
   createReview,
   createReport,
   findCommentIdComment,
   updateLikeCommentIdLikes,
+  updateCommentIdComment,
+  deleteCommentIdComment,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findUserReviews,

@@ -8,6 +8,8 @@ const {
   findCommentIdComment,
   findUserReviews,
   createReport,
+  deleteCommentIdComment,
+  updateCommentIdComment,
 } = require('../../services/review/review.service');
 const emptyChecker = require('../../utils/emptyChecker');
 const {
@@ -69,6 +71,127 @@ reviewController.post('/register', checklogin, async (req, res) => {
   }
 });
 
+reviewController.post('/update', checklogin, async (req, res) => {
+  const { commentId, imgUrls, content, starpoint } = req.body;
+  const { email } = req.session.user;
+
+  if (emptyChecker({ commentId, imgUrls, content, starpoint })) {
+    return res
+      .status(400)
+      .json({ result: false, message: '수정 내용을 불라올 수 없어요.' });
+  }
+
+  if (!email) {
+    return res.status(401).json({
+      result: false,
+      message: '로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.',
+    });
+  }
+
+  try {
+    const _id = await findUserEmailId({ email });
+
+    if (!_id) {
+      return res.status(404).json({
+        result: false,
+        message: '등록된 유저 정보가 없습니다',
+      });
+    }
+
+    const review = await updateCommentIdComment({
+      commentId,
+      imgUrls,
+      content,
+      starpoint,
+    });
+
+    if (!review) {
+      throw new Error('리뷰 수정 실패');
+    }
+
+    return res.json({
+      result: true,
+      data: review,
+      message: '리뷰 수정 성공 ',
+    });
+  } catch (e) {
+    return res.json({
+      result: false,
+      data: {},
+      message: '리뷰 수정 실패',
+    });
+  }
+});
+
+reviewController.post('/delete', checklogin, async (req, res) => {
+  const { commentId } = req.body;
+  const { email } = req.session.user;
+
+  if (!email) {
+    return res.status(401).json({
+      result: false,
+      message: '로그인 유지 시간이 만료되었습니다. 다시 로그인 해주세요.',
+    });
+  }
+
+  if (emptyChecker({ commentId })) {
+    return res
+      .status(400)
+      .json({ result: false, message: '리뷰를 참조할 수 없습니다.' });
+  }
+
+  try {
+    const userId = await findUserEmailId({ email });
+
+    if (!userId) {
+      return res.status(404).json({
+        result: false,
+        message: '유저 조회에 실패했습니다.',
+      });
+    }
+
+    const comment = await findCommentIdComment({ commentId });
+
+    if (comment.length === 0) {
+      return res.status(404).json({
+        result: false,
+        message: '리뷰를 참조하지 못했습니다.',
+      });
+    }
+
+    const IsOwner =
+      JSON.stringify(userId) === JSON.stringify(comment[0].userId);
+
+    if (!IsOwner) {
+      return res.status(500).json({
+        result: false,
+        message: '리뷰를 삭제할 권한이 없습니다.',
+      });
+    }
+
+    const result = await deleteCommentIdComment({
+      commentId,
+    });
+
+    if (result.length === 0) {
+      return res.status(500).json({
+        result: false,
+        message: '리뷰를 삭제할 권한이 없습니다.',
+      });
+    }
+
+    return res.json({
+      result: true,
+      message: '리뷰 삭제 성공',
+    });
+  } catch (e) {
+    return res.json({
+      result: false,
+      message: '리뷰 삭제 실패',
+    });
+  }
+});
+
 reviewController.post('/totalcomments', async (req, res) => {
   const { movieId } = req.body;
 
@@ -96,24 +219,26 @@ reviewController.post('/totalcomments', async (req, res) => {
       });
     }
 
-    const finedReview = reviews.map((review) => ({
-      ...review,
-      IsOwner: JSON.stringify(userId) === JSON.stringify(review.userId._id),
-      totalLike: review.like.length || 0,
-      totalDisLike: review.dislike.length || 0,
-      like:
-        review.like.length !== 0
-          ? review.like.some(
-              (item) => JSON.stringify(item) === JSON.stringify(userId)
-            )
-          : false,
-      dislike:
-        review.dislike.length !== 0
-          ? review.dislike.some(
-              (item) => JSON.stringify(item) === JSON.stringify(userId)
-            )
-          : false,
-    }));
+    const finedReview = reviews
+      .filter(({ deletedAt }) => deletedAt === null)
+      .map((review) => ({
+        ...review,
+        IsOwner: JSON.stringify(userId) === JSON.stringify(review.userId._id),
+        totalLike: review.like.length || 0,
+        totalDisLike: review.dislike.length || 0,
+        like:
+          review.like.length !== 0
+            ? review.like.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
+        dislike:
+          review.dislike.length !== 0
+            ? review.dislike.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
+      }));
 
     return res.json({
       result: true,
@@ -174,7 +299,7 @@ reviewController.post('/likes', checklogin, async (req, res) => {
 
     const comment = await findCommentIdComment({ commentId });
 
-    if (result.length === 0) {
+    if (comment.length === 0) {
       return res.status(500).json({
         result: false,
         message: '리뷰를 참조하지 못했습니다.',
