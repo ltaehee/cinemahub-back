@@ -1,5 +1,6 @@
-const Review = require('../../schemas/review/review.schema');
-const emptyChecker = require('../../utils/emptyChecker');
+const Review = require("../../schemas/review/review.schema");
+const User = require("../../schemas/user/user.schema");
+const emptyChecker = require("../../utils/emptyChecker");
 
 const createReview = async ({
   userId,
@@ -14,7 +15,7 @@ const createReview = async ({
     ).toObject();
 
     if (!result) {
-      throw new Error('리뷰 등록 실패');
+      throw new Error("리뷰 등록 실패");
     }
     return result;
   } catch (e) {
@@ -36,7 +37,7 @@ const createReport = async ({ commentId, userId, reason }) => {
       }
     );
 
-    return { message: '신고 접수 성공' };
+    return { message: "신고 접수 성공" };
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
@@ -47,7 +48,7 @@ const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
     const result = await Review.find({ movieId })
       .skip(skip)
       .limit(limit)
-      .populate('userId', 'profile nickname')
+      .populate("userId", "profile nickname")
       .lean();
 
     return result;
@@ -67,7 +68,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       {
         $group: {
           _id: null,
-          totalStarScore: { $avg: '$starpoint' },
+          totalStarScore: { $avg: "$starpoint" },
         },
       },
     ]);
@@ -97,9 +98,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '좋아요를 눌렀어요.' };
+        return { message: "좋아요를 눌렀어요." };
       } else {
-        return { message: '이미 좋아요를 눌렀어요.' };
+        return { message: "이미 좋아요를 눌렀어요." };
       }
     }
 
@@ -114,9 +115,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '싫어요를 눌렀어요.' };
+        return { message: "싫어요를 눌렀어요." };
       } else {
-        return { message: '이미 싫어요를 눌렀어요.' };
+        return { message: "이미 싫어요를 눌렀어요." };
       }
     }
 
@@ -135,7 +136,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '좋아요 취소' };
+        return { message: "좋아요 취소" };
       }
 
       // 형변환 ...
@@ -152,7 +153,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: '싫어요 취소' };
+        return { message: "싫어요 취소" };
       }
     }
   } catch (e) {
@@ -165,7 +166,7 @@ const findCommentIdComment = async ({ commentId }) => {
     const result = await Review.find({ _id: commentId }).lean();
 
     if (!result) {
-      throw new Error('리뷰 조회 실패');
+      throw new Error("리뷰 조회 실패");
     }
     return result;
   } catch (e) {
@@ -183,6 +184,89 @@ const findUserReviews = async ({ userId, skip, limit }) => {
   }
 };
 
+// 모든 신고 리뷰 조회
+const getReportedReviews = async (page, limit) => {
+  const skip = page * limit;
+  const parsedLimit = parseInt(limit, 10);
+  try {
+    const reportedReviews = await Review.find({
+      reportlist: { $ne: [] }, // reportlist가 빈 배열이 아닌 리뷰만 조회
+      reportstatus: { $ne: true },
+    })
+      .select("content imgUrls reportlist.reason reportlist._id")
+      .populate("userId", "email")
+      .populate("reportlist.user", "email")
+      .sort("-createdAt");
+    // .skip(skip)
+    // .limit(parsedLimit);
+
+    if (reportedReviews.length === 0) {
+      console.log("조회된 신고 리뷰가 없음");
+    }
+
+    const allReports = reportedReviews.flatMap((review) =>
+      review.reportlist.map((report) => ({
+        _id: report._id,
+        reportedEmail: report.user.email, // 신고한 유저 이메일
+        reason: report.reason,
+        email: review.userId.email, // 신고당한 유저 이메일
+        content: review.content,
+        imgUrls: review.imgUrls,
+      }))
+    );
+
+    const paginatedReports = allReports.slice(skip, skip + parsedLimit);
+    const totalCount = allReports.length;
+
+    // 신고 리뷰 총합(같은 리뷰의 여러 신고도 포함)
+    // const totalCount = reportedReviews.reduce(
+    //   (acc, review) => acc + review.reportlist.length,
+    //   0
+    // );
+
+    return { reportResult: paginatedReports, totalCount };
+  } catch (err) {
+    console.error("신고 리뷰 조회 오류: ", err);
+    throw new Error(err.message);
+  }
+};
+
+// 단일 신고 리뷰 삭제(Soft Delete)
+const patchReviewByReportId = async (_id) => {
+  try {
+    const result = await Review.findOneAndUpdate(
+      { "reportlist._id": _id },
+      { $set: { reportstatus: true } },
+      { new: true }
+    );
+
+    if (!result) {
+      throw new Error("해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.");
+    }
+
+    return result;
+  } catch (err) {
+    console.error("리뷰 신고 처리중 오류 발생: ", err);
+  }
+};
+
+// 다중 신고 리뷰 삭제(Soft Delete)
+const patchReviewsByReportIds = async (reportIds) => {
+  try {
+    const result = await Review.updateMany(
+      { "reportlist._id": { $in: reportIds } },
+      { $set: { reportstatus: true } }
+    );
+
+    if (result.matchedCount === 0) {
+      throw new Error("해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.");
+    }
+
+    return result;
+  } catch (err) {
+    console.error("다중 리뷰 신고 처리중 오류 발생: ", err);
+  }
+};
 module.exports = {
   createReview,
   createReport,
@@ -191,4 +275,7 @@ module.exports = {
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findUserReviews,
+  getReportedReviews,
+  patchReviewByReportId,
+  patchReviewsByReportIds,
 };
