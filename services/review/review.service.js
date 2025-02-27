@@ -29,7 +29,7 @@ const createReport = async ({ commentId, userId, reason }) => {
       {
         $push: {
           reportlist: {
-            userId,
+            user: userId,
             reason,
           },
         },
