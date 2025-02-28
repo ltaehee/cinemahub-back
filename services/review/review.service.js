@@ -1,4 +1,5 @@
 const Review = require("../../schemas/review/review.schema");
+const User = require("../../schemas/user/user.schema");
 const emptyChecker = require("../../utils/emptyChecker");
 
 const createReview = async ({
@@ -283,4 +284,8 @@ module.exports = {
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findUserReviews,
+  getReportedReviews,
+  patchReviewByReportId,
+  patchReviewsByReportIds,
+  getMovieReviewLength,
 };
