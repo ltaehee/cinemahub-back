@@ -15,6 +15,7 @@ const emptyChecker = require('../../utils/emptyChecker');
 const {
   findUserByNickname,
 } = require('../../services/profile/profile.service');
+const Review = require('../../schemas/review/review.schema');
 
 const reviewController = require('express').Router();
 
@@ -22,7 +23,7 @@ reviewController.post('/register', checklogin, async (req, res) => {
   const { movieId, imgUrls, content, starpoint } = req.body;
   const { email } = req.session.user;
 
-  if (emptyChecker({ movieId, imgUrls, content, starpoint })) {
+  if (emptyChecker({ movieId, content, starpoint })) {
     return res
       .status(400)
       .json({ result: false, message: '리뷰 내용 작성과 별점을 등록해주세요' });
@@ -75,7 +76,7 @@ reviewController.post('/update', checklogin, async (req, res) => {
   const { commentId, imgUrls, content, starpoint } = req.body;
   const { email } = req.session.user;
 
-  if (emptyChecker({ commentId, imgUrls, content, starpoint })) {
+  if (emptyChecker({ commentId, content, starpoint })) {
     return res
       .status(400)
       .json({ result: false, message: '수정 내용을 불라올 수 없어요.' });
@@ -205,6 +206,11 @@ reviewController.post('/totalcomments', async (req, res) => {
     const reviews = await findMovieIdCommentsArray({ movieId });
     const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
 
+    const totalPages = await Review.countDocuments({
+      movieId,
+      deletedAt: null,
+    });
+
     if (reviews.length === 0) {
       return res.status(404).json({
         result: false,
@@ -245,6 +251,7 @@ reviewController.post('/totalcomments', async (req, res) => {
       data: {
         reviews: finedReview,
         totalstarpoint: totalstarpoint.totalStarScore.toFixed(1),
+        totalPages,
       },
       message: '전체 리뷰 조회 성공',
     });
