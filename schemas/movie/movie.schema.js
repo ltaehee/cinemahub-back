@@ -8,6 +8,7 @@ const movieSchema = new mongoose.Schema({
   posterPath: String,
   backdropPath: String,
   genreIds: [Number],
+  popularity: Number,
 });
 
 const Movie = mongoose.model("Movie", movieSchema);

@@ -66,10 +66,10 @@ movieController.get("/:movieId/posters", async (req, res) => {
 
 movieController.get("/genre/:genreId", async (req, res) => {
   const { genreId } = req.params;
-  const { page, limit } = req.query;
+  const { page, limit, sortBy } = req.query;
 
   try {
-    const movies = await findMoviesByGenre(genreId, page, limit);
+    const movies = await findMoviesByGenre(genreId, page, limit, sortBy);
     res.json(movies);
   } catch (error) {
     console.error(`장르별 영화 요청 에러: ${error.message}`);

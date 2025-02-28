@@ -74,6 +74,7 @@ const fetchMovies = async () => {
                         posterPath: movie.poster_path,
                         backdropPath: movie.backdrop_path,
                         genreIds: movie.genre_ids,
+                        popularity: movie.popularity,
                       },
                       { upsert: true, new: true }
                     )
@@ -155,19 +156,28 @@ const findMoviesByTmdbIds = async (tmdbMovieIds) => {
 };
 
 // 장르 별 영화 가져오기
-const findMoviesByGenre = async (genreId, page, limit) => {
+const findMoviesByGenre = async (genreId, page, limit, sortBy) => {
   try {
     limit = Number(limit);
     page = Number(page);
 
     const skip = page * limit;
 
+    const sortOptions = {
+      popularity: { popularity: -1 },
+      latest: { releaseDate: -1 },
+      title: { title: 1 },
+    };
+
+    const sort = sortOptions[sortBy] || { popularity: -1 };
+
     const movies = await Movie.find({
       genreIds: { $in: [genreId] },
     })
       .skip(skip)
       .limit(limit)
-      .select("genreIds movieId posterPath releaseDate title -_id");
+      .select("genreIds movieId posterPath releaseDate title -_id")
+      .sort(sort);
     return movies;
   } catch (err) {
     console.error("DB에서 영화 조회 중 오류 발생: ", err);
