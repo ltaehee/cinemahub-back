@@ -21,7 +21,7 @@ const fetchMovieDetails = async (movieId) => {
     const detailsResponse = await tmdbApi.get(`/movie/${movieId}`, {
       params: {
         language: "ko-KR",
-        append_to_response: "videos,credits,release_dates",
+        append_to_response: "videos,credits,release_dates,images",
         include_image_language: "ko,null",
       },
     });
@@ -45,8 +45,8 @@ const fetchMovieDetails = async (movieId) => {
     const genreIds = genres.map((genre) => genre.id);
 
     const logoPath =
-      images?.logos?.find((logo) => logo.iso_639_1 === "ko")?.file_path ??
-      images?.logos?.[0]?.file_path ??
+      images?.logos?.filter((logo) => logo.iso_639_1 === "ko")[1]?.file_path ??
+      images?.logos?.filter((logo) => logo.iso_639_1 === "ko")[0]?.file_path ??
       null;
 
     const koreaRelease = data.release_dates?.results?.find(
