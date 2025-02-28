@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const movieDetailsImagesSchema = new mongoose.Schema({
-  movieId: { type: Number, required: true, unique: true },
+  movieId: { type: String, required: true, unique: true },
   imgPath: [String],
   updatedAt: { type: Date, default: Date.now, index: { expires: "7d" } },
 });

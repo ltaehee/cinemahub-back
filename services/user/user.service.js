@@ -67,8 +67,6 @@ const findUserNicknameByKeyword = async (keyword, page, limit) => {
     return {
       users: result,
       totalCount,
-      currentPage: page,
-      totalPages: Math.ceil(totalCount / parsedLimit),
     };
   } catch (err) {
     console.error("유저 검색 오류: ", err);
@@ -91,8 +89,6 @@ const getUsers = async (page, limit) => {
     return {
       users,
       totalCount,
-      currentPage: parseInt(page, 10),
-      totalPages: Math.ceil(totalCount / parsedLimit),
     };
   } catch (err) {
     console.error("전체 유저 조회 오류: ", err);
@@ -101,7 +97,7 @@ const getUsers = async (page, limit) => {
 };
 
 // 단일 유저 삭제(Soft Delete)
-const deleteUserByEmail = async (email) => {
+const patchUserByEmail = async (email) => {
   try {
     const result = await User.findOneAndUpdate(
       { email },
@@ -121,7 +117,7 @@ const deleteUserByEmail = async (email) => {
 };
 
 // 다중 유저 삭제(Soft Delete)
-const deleteUsersByEmails = async (emails) => {
+const patchUsersByEmails = async (emails) => {
   try {
     const result = await User.updateMany(
       { email: { $in: emails } }, // email 값 중 일치하는 email 찾기
@@ -141,7 +137,7 @@ module.exports = {
   findUserNicknameBoolean,
   findUserEmailId,
   findUserNicknameByKeyword,
-  deleteUserByEmail,
-  deleteUsersByEmails,
+  patchUserByEmail,
+  patchUsersByEmails,
   getUsers,
 };

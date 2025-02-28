@@ -17,24 +17,30 @@ const fetchPersonDetails = async (personId) => {
 
     const detailsResponse = await tmdbApi.get(`/person/${personId}`, {
       params: {
-        append_to_response: "images",
+        language: "ko-KR",
       },
     });
 
     const { data } = detailsResponse;
-    const imgPath =
-      data.images?.profiles?.map((image) => image.file_path) ?? [];
-    const { birthday, deathday, gender, department } = data;
-    const placeOfBirth = data.place_of_birth;
+    const {
+      birthday,
+      name,
+      deathday,
+      gender,
+      known_for_department,
+      place_of_birth,
+      profile_path,
+    } = data;
 
     const personDetails = {
       personId,
-      imgPath,
+      name,
+      profilePath: profile_path,
       birthday,
       deathday,
       gender,
-      department,
-      placeOfBirth,
+      department: known_for_department,
+      placeOfBirth: place_of_birth,
       updatedAt: new Date(),
     };
 

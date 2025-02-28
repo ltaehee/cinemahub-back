@@ -10,11 +10,13 @@ const {
   createReport,
   deleteCommentIdComment,
   updateCommentIdComment,
+  getMovieReviewLength,
 } = require('../../services/review/review.service');
 const emptyChecker = require('../../utils/emptyChecker');
 const {
   findUserByNickname,
 } = require('../../services/profile/profile.service');
+
 const Review = require('../../schemas/review/review.schema');
 
 const reviewController = require('express').Router();
@@ -190,6 +192,19 @@ reviewController.post('/delete', checklogin, async (req, res) => {
       result: false,
       message: '리뷰 삭제 실패',
     });
+  }
+});
+
+reviewController.get('/:movieId', async (req, res) => {
+  const { movieId } = req.params;
+  try {
+    const reviewScore = await findMovieIdStarScoreSum({ movieId });
+    const reviewLength = await getMovieReviewLength({ movieId });
+
+    return res.json({ reviewScore, reviewLength });
+  } catch (error) {
+    console.error(`영화 리뷰 점수 요청 에러: ${error.message}`);
+    res.status(500).json({ message: '영화 리뷰 점수 요청 에러' });
   }
 });
 
@@ -389,9 +404,11 @@ reviewController.post('/report', checklogin, async (req, res) => {
   }
 });
 
-/* 리뷰조회 */
+/* 프로필 페이지 리뷰조회 */
 reviewController.get('/user-reviews/:nickname', async (req, res) => {
   const { nickname } = req.params;
+  const { page, limit } = req.query;
+  const offset = (page - 1) * limit;
 
   try {
     const targetUser = await findUserByNickname(nickname);
@@ -402,12 +419,20 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
       });
     }
 
-    // 해당 사용자의 리뷰 조회
-    const reviews = await findUserReviews({ userId: targetUser._id });
-    console.log('리뷰테스트', reviews);
+    // 전체 리뷰 조회
+    const allReviews = await findUserReviews({ userId: targetUser._id });
 
-    // 리뷰 데이터 포맷팅
-    const finedReview = reviews.map((review) => ({
+    const total = allReviews.length;
+
+    // 최신순 정렬
+    const sortedReviews = allReviews.sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    // 페이지네이션 적용
+    const paginatedReviews = sortedReviews.slice(offset, offset + limit);
+
+    const finedReview = paginatedReviews.map((review) => ({
       ...review,
       totalLike: review.like.length || 0,
       totalDisLike: review.dislike.length || 0,
@@ -416,6 +441,9 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
     return res.json({
       result: true,
       data: finedReview,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
       message: '사용자 리뷰 조회 성공',
     });
   } catch (e) {

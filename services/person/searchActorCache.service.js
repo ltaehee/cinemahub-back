@@ -46,34 +46,43 @@ const findPeopleByName = async (name, page = 1) => {
     // 배우별 known_for에서 중복 영화 제거
     filteredPeoples.forEach((people) => {
       people.known_for = Array.from(
-        new Map(people.known_for.map((movie) => [movie.id, movie])).values()
+        new Map(
+          people.known_for.map((movie) => [String(movie.id), movie])
+        ).values()
       );
     });
+    console.log("filteredPeoples: ", filteredPeoples);
 
     // 모든 배우의 `known_for` 영화 목록을 하나의 배열로 합치기
     const allMovies = filteredPeoples.flatMap((person) => person.known_for);
+    // console.log("allMovies: ", allMovies);
 
     // 중복 제거 (영화 ID 기준)
     let uniqueMovies = Array.from(
-      new Map(allMovies.map((movie) => [movie.id, movie])).values()
+      new Map(allMovies.map((movie) => [String(movie.id), movie])).values()
     );
 
     // 이전 페이지에서 가져온 영화와 중복 제거
     uniqueMovies = uniqueMovies.filter(
-      (movie) => !loadedMovieIds.has(movie.id)
+      (movie) => !loadedMovieIds.has(String(movie.id))
     );
 
     // 중복 제거 후, 가져온 영화 ID들을 저장 (다음 페이지 중복 방지)
-    uniqueMovies.forEach((movie) => loadedMovieIds.add(movie.id));
+    uniqueMovies.forEach((movie) => loadedMovieIds.add(String(movie.id)));
 
     // DB저장된 영화 ID 조회
     const matchedMovies = await findMoviesByTmdbIds(
-      uniqueMovies.map((movie) => movie.id)
+      uniqueMovies.map((movie) => String(movie.id))
     );
 
     // 최종적으로 DB에 있는 영화만 필터링
-    const finalMovies = uniqueMovies.filter((movie) =>
-      matchedMovies.some((dbMovie) => dbMovie.movieId === movie.id)
+    const filteredMovies = uniqueMovies.filter((movie) =>
+      matchedMovies.some((dbMovie) => dbMovie.movieId === String(movie.id))
+    );
+
+    // 최종적으로 또 중복 제거
+    const finalMovies = Array.from(
+      new Map(filteredMovies.map((movie) => [String(movie.id), movie])).values()
     );
 
     // 배우 정보에서 DB에 있는 영화만 포함
