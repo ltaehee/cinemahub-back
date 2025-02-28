@@ -1,3 +1,4 @@
+const { findMoviesByGenre } = require("../services/movie/movie.service");
 const {
   fetchMovieDetails,
 } = require("../services/movie/movieDetailsCache.service");
@@ -60,6 +61,19 @@ movieController.get("/:movieId/posters", async (req, res) => {
   } catch (error) {
     console.error(`영화 포스터 요청 에러: ${error.message}`);
     res.status(500).json({ message: "영화 포스터 요청 에러" });
+  }
+});
+
+movieController.get("/genre/:genreId", async (req, res) => {
+  const { genreId } = req.params;
+  const { page, limit } = req.query;
+
+  try {
+    const movies = await findMoviesByGenre(genreId, page, limit);
+    res.json(movies);
+  } catch (error) {
+    console.error(`장르별 영화 요청 에러: ${error.message}`);
+    res.status(500).json({ message: "장르별 영화 요청 에러" });
   }
 });
 

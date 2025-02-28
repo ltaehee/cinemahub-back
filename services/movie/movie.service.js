@@ -155,7 +155,7 @@ const findMoviesByTmdbIds = async (tmdbMovieIds) => {
 };
 
 // 장르 별 영화 가져오기
-const findMoviesByCategory = async (genreIds, page, limit) => {
+const findMoviesByGenre = async (genreId, page, limit) => {
   try {
     limit = Number(limit);
     page = Number(page);
@@ -163,10 +163,11 @@ const findMoviesByCategory = async (genreIds, page, limit) => {
     const skip = page * limit;
 
     const movies = await Movie.find({
-      genreIds: { $in: [genreIds] },
+      genreIds: { $in: [genreId] },
     })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .select("genreIds movieId posterPath releaseDate title -_id");
     return movies;
   } catch (err) {
     console.error("DB에서 영화 조회 중 오류 발생: ", err);
@@ -177,5 +178,5 @@ const findMoviesByCategory = async (genreIds, page, limit) => {
 module.exports = {
   findMovieByKeyword,
   findMoviesByTmdbIds,
-  findMoviesByCategory,
+  findMoviesByGenre,
 };
