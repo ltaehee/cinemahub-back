@@ -13,12 +13,12 @@ const fetchPopularActors = async () => {
     for (const actor of actors) {
       try {
         await popularPersonCacheSchema.findOneAndUpdate(
-          { personId: actor.id },
+          { personId: actor.id.toString() },
           {
             name: actor.name,
             profilePath: actor.profile_path,
             knownFor: actor.known_for.map((movie) => ({
-              movieId: movie.id,
+              movieId: movie.id.toString(),
               title: movie.title,
               posterPath: movie.poster_path,
             })),

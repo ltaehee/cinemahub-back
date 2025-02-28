@@ -1,5 +1,4 @@
 const Review = require("../../schemas/review/review.schema");
-const User = require("../../schemas/user/user.schema");
 const emptyChecker = require("../../utils/emptyChecker");
 
 const createReview = async ({
@@ -77,6 +76,15 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       return { _id: null, totalStarScore: 0 };
     }
     return result[0];
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const getMovieReviewLength = async ({ movieId }) => {
+  try {
+    const result = await Review.find({ movieId }).countDocuments();
+    return result;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
@@ -275,7 +283,4 @@ module.exports = {
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findUserReviews,
-  getReportedReviews,
-  patchReviewByReportId,
-  patchReviewsByReportIds,
 };

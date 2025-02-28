@@ -1,7 +1,6 @@
 const Movie = require("../../schemas/movie/movie.schema");
 const cron = require("node-cron");
 const { tmdbApi } = require("../tmdbApi");
-
 const fetchMovies = async () => {
   try {
     const today = new Date().toISOString().split("T")[0];
@@ -20,6 +19,7 @@ const fetchMovies = async () => {
             "primary_release_date.lte": yearEnd,
             language: "ko-KR",
             sort_by: "popularity.desc",
+            include_adult: false,
             page: 1,
           },
         });
@@ -27,49 +27,76 @@ const fetchMovies = async () => {
         const totalPages = initialResponse.data.total_pages;
         const pagesToFetch = Math.min(totalPages, 500);
 
-        for (let page = 1; page <= pagesToFetch; page++) {
+        for (let page = 1; page <= pagesToFetch; page += 5) {
+          const pageBatch = Array.from(
+            { length: Math.min(5, pagesToFetch - page + 1) },
+            (_, i) => page + i
+          );
+
           try {
-            const response = await tmdbApi.get(`/discover/movie`, {
-              params: {
-                "primary_release_date.gte": yearStart,
-                "primary_release_date.lte": yearEnd,
-                language: "ko-KR",
-                sort_by: "popularity.desc",
-                page: page,
-              },
-            });
+            const responses = await Promise.allSettled(
+              pageBatch.map((p) =>
+                tmdbApi.get(`/discover/movie`, {
+                  params: {
+                    "primary_release_date.gte": yearStart,
+                    "primary_release_date.lte": yearEnd,
+                    language: "ko-KR",
+                    sort_by: "popularity.desc",
+                    include_adult: false,
+                    page: p,
+                  },
+                })
+              )
+            );
 
-            const movies = response.data.results;
-
-            for (const movie of movies) {
-              if (
-                !/[가-힣]/.test(movie.title) &&
-                !/[가-힣]/.test(movie.original_title)
-              ) {
+            for (const result of responses) {
+              if (result.status !== "fulfilled") {
+                console.error(
+                  `${year}년 ${result.reason.config.params.page}페이지 요청 실패:`,
+                  result.reason.message
+                );
                 continue;
               }
 
-              await Movie.findOneAndUpdate(
-                { movieId: movie.id },
-                {
-                  title: movie.title,
-                  overview: movie.overview,
-                  releaseDate: movie.release_date,
-                  posterPath: movie.poster_path,
-                  backdropPath: movie.backdrop_path,
-                  genreIds: movie.genre_ids,
-                },
-                { upsert: true, new: true }
-              );
-              totalMovies++;
-            }
+              const movies = result.value.data.results;
 
-            console.log(
-              `${year}년도 ${page}페이지 처리 완료, 현재까지 ${totalMovies}개 저장됨`
-            );
+              for (let i = 0; i < movies.length; i += 10) {
+                const batch = movies.slice(i, i + 10);
+
+                const saveResults = await Promise.allSettled(
+                  batch.map((movie) =>
+                    Movie.findOneAndUpdate(
+                      { movieId: movie.id.toString() },
+                      {
+                        title: movie.title,
+                        overview: movie.overview,
+                        releaseDate: movie.release_date,
+                        posterPath: movie.poster_path,
+                        backdropPath: movie.backdrop_path,
+                        genreIds: movie.genre_ids,
+                      },
+                      { upsert: true, new: true }
+                    )
+                  )
+                );
+
+                saveResults.forEach((res, index) => {
+                  if (res.status === "fulfilled") {
+                    totalMovies++;
+                  } else {
+                    console.error(
+                      `${year}년 ${page}~${page + 4}페이지 ${
+                        i + index + 1
+                      }번째 영화 저장 실패:`,
+                      res.reason
+                    );
+                  }
+                });
+              }
+            }
           } catch (error) {
             console.error(
-              `${year}년도 ${page}페이지 처리 중 오류 발생:`,
+              `${year}년도 ${page}~${page + 4}페이지 요청 중 오류 발생:`,
               error.message
             );
           }
@@ -78,13 +105,14 @@ const fetchMovies = async () => {
         console.error(`${year}년도 데이터 수집 중 오류 발생:`, error.message);
       }
     }
+
+    console.log(`총 ${totalMovies}개의 영화 데이터 저장 완료`);
   } catch (error) {
     console.error("TMDB API 요청 실패:", error.message);
   }
 };
 
 cron.schedule("0 0 * * *", () => {
-  console.log("영화 데이터 업데이트 시작");
   fetchMovies();
 });
 
@@ -126,7 +154,28 @@ const findMoviesByTmdbIds = async (tmdbMovieIds) => {
   }
 };
 
+// 장르 별 영화 가져오기
+const findMoviesByCategory = async (genreIds, page, limit) => {
+  try {
+    limit = Number(limit);
+    page = Number(page);
+
+    const skip = page * limit;
+
+    const movies = await Movie.find({
+      genreIds: { $in: [genreIds] },
+    })
+      .skip(skip)
+      .limit(limit);
+    return movies;
+  } catch (err) {
+    console.error("DB에서 영화 조회 중 오류 발생: ", err);
+    throw new Error("영화 조회 실패");
+  }
+};
+
 module.exports = {
   findMovieByKeyword,
   findMoviesByTmdbIds,
+  findMoviesByCategory,
 };
