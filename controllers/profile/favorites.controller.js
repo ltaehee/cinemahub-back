@@ -23,7 +23,7 @@ favoritesController.post('/add', async (req, res) => {
     }
 
     const result = await addFavorite(email, favoriteType, favoriteId);
-    return res.status(200).json(result);
+    return res.status(201).json(result);
   } catch (error) {
     console.error('즐겨찾기 추가 오류:', error);
     return res.status(500).json({ message: error.message });
@@ -41,7 +41,7 @@ favoritesController.post('/remove', async (req, res) => {
     }
 
     const result = await removeFavorite(email, favoriteType, favoriteId);
-    return res.status(200).json(result);
+    return res.status(204).json(result);
   } catch (error) {
     console.error('즐겨찾기 삭제 오류:', error);
     return res.status(500).json({ message: error.message });

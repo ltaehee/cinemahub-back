@@ -54,8 +54,6 @@ profileController.get('/:nickname', async (req, res) => {
         nickname: user.nickname,
         introduce: user.introduce || '',
         profile: user.profile || '',
-        followers: user.followers || [],
-        following: user.following || [],
         role: user.role || 'user',
         isOwnProfile: false,
         isFollowing: false,
@@ -82,8 +80,6 @@ profileController.get('/:nickname', async (req, res) => {
       nickname: user.nickname,
       introduce: user.introduce || '',
       profile: user.profile || '',
-      followers: user.followers || [],
-      following: user.following || [],
       role: user.role || 'user',
       isOwnProfile: loggedInUser.nickname === user.nickname,
       isFollowing,
@@ -128,7 +124,7 @@ profileController.patch('/profile-update', async (req, res) => {
 });
 
 // 닉네임 중복체크
-profileController.post('/check-name', async (req, res) => {
+profileController.post('/check-nickname', async (req, res) => {
   const { nickname, currentNickname } = req.body;
 
   if (!nickname) {
