@@ -4,6 +4,9 @@ const {
   findPeopleByName,
 } = require("../../services/person/searchActorCache.service");
 const {
+  findReviewDataByKeyword,
+} = require("../../services/review/review.service");
+const {
   findUserNicknameByKeyword,
 } = require("../../services/user/user.service");
 
@@ -74,11 +77,25 @@ searchController.get("/user", async (req, res) => {
     return res.json({
       users: madeUser,
       totalCount: user.totalCount,
-      currentPage: user.currentPage,
-      totalPages: user.totalPages,
     });
   } catch (err) {
     res.status(500).json({ err: "유저 정보 조회 실패" });
+  }
+});
+
+// 신고 리뷰 관련 정보 검색
+searchController.get("/review", async (req, res) => {
+  const { keyword, page, limit } = req.query;
+  console.log("keyword: ", keyword);
+  if (!keyword) {
+    return res.status(400).json({ error: "검색어를 입력하세요" });
+  }
+  try {
+    const reviewData = await findReviewDataByKeyword(keyword, page, limit);
+
+    return res.json(reviewData);
+  } catch (err) {
+    res.status(500).json({ err: "신고 리뷰 관련 정보 조회 실패" });
   }
 });
 module.exports = searchController;

@@ -67,8 +67,6 @@ const findUserNicknameByKeyword = async (keyword, page, limit) => {
     return {
       users: result,
       totalCount,
-      currentPage: page,
-      totalPages: Math.ceil(totalCount / parsedLimit),
     };
   } catch (err) {
     console.error("유저 검색 오류: ", err);
@@ -91,8 +89,6 @@ const getUsers = async (page, limit) => {
     return {
       users,
       totalCount,
-      currentPage: parseInt(page, 10),
-      totalPages: Math.ceil(totalCount / parsedLimit),
     };
   } catch (err) {
     console.error("전체 유저 조회 오류: ", err);

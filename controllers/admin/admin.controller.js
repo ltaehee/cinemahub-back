@@ -16,10 +16,8 @@ const adminController = require("express").Router();
 // 유저 상태 변경
 adminController.patch("/users", async (req, res) => {
   const { emails } = req.query;
-  console.log("emails: ", emails);
 
   const emailArray = typeof emails === "string" ? emails.split(",") : emails;
-  console.log("emailArray: ", emailArray);
   if (!emailArray || emailArray.length === 0) {
     return res
       .status(400)
@@ -42,10 +40,8 @@ adminController.patch("/users", async (req, res) => {
 // 신고 리뷰 상태 변경
 adminController.patch("/reviews", async (req, res) => {
   const { _id } = req.query;
-  console.log("_id: ", _id);
 
   const _idArray = typeof _id === "string" ? _id.split(",") : _id;
-  console.log("_idArray: ", _idArray);
 
   if (!_idArray || _idArray.length === 0) {
     return res

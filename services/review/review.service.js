@@ -206,8 +206,6 @@ const getReportedReviews = async (page, limit) => {
       .populate("userId", "email")
       .populate("reportlist.user", "email")
       .sort("-createdAt");
-    // .skip(skip)
-    // .limit(parsedLimit);
 
     if (reportedReviews.length === 0) {
       console.log("조회된 신고 리뷰가 없음");
@@ -227,15 +225,52 @@ const getReportedReviews = async (page, limit) => {
     const paginatedReports = allReports.slice(skip, skip + parsedLimit);
     const totalCount = allReports.length;
 
-    // 신고 리뷰 총합(같은 리뷰의 여러 신고도 포함)
-    // const totalCount = reportedReviews.reduce(
-    //   (acc, review) => acc + review.reportlist.length,
-    //   0
-    // );
-
     return { reportResult: paginatedReports, totalCount };
   } catch (err) {
     console.error("신고 리뷰 조회 오류: ", err);
+    throw new Error(err.message);
+  }
+};
+
+// 신고 리뷰 관련 데이터 검색
+const findReviewDataByKeyword = async (keyword, page, limit) => {
+  const skip = page * limit;
+  const parsedLimit = parseInt(limit, 10);
+
+  try {
+    // 검색된 리뷰의 총 개수 계산
+    const totalCount = await Review.countDocuments({
+      reportstatus: { $ne: true },
+      reportlist: { $ne: [] },
+      content: { $regex: `${keyword}`, $options: "i" },
+    });
+
+    const results = await Review.find({
+      reportstatus: { $ne: true },
+      reportlist: { $ne: [] },
+      content: { $regex: `${keyword}`, $options: "i" }, // 리뷰 내용에 검색어가 포함된 리뷰만 조회
+    })
+      .select("content imgUrls reportlist.reason reportlist._id")
+      .populate("userId", "email")
+      .populate("reportlist.user", "email")
+      .sort("-createdAt")
+      .skip(skip)
+      .limit(parsedLimit);
+
+    const allReports = results.flatMap((review) =>
+      review.reportlist.map((report) => ({
+        _id: report._id,
+        reportedEmail: report.user.email, // 신고한 유저 이메일
+        reason: report.reason,
+        email: review.userId.email, // 신고당한 유저 이메일
+        content: review.content,
+        imgUrls: review.imgUrls,
+      }))
+    );
+
+    return { reportResult: allReports, totalCount };
+  } catch (err) {
+    console.error("신고 리뷰 관련 정보 조회 오류: ", err);
     throw new Error(err.message);
   }
 };
@@ -285,6 +320,7 @@ module.exports = {
   findMovieIdStarScoreSum,
   findUserReviews,
   getReportedReviews,
+  findReviewDataByKeyword,
   patchReviewByReportId,
   patchReviewsByReportIds,
   getMovieReviewLength,
