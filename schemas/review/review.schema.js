@@ -37,6 +37,10 @@ const reviewSchema = new mongoose.Schema(
     },
     like: [{ type: ObjectId, ref: 'User' }],
     dislike: [{ type: ObjectId, ref: 'User' }],
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: {

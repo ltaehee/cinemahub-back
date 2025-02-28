@@ -1,6 +1,6 @@
-const Review = require("../../schemas/review/review.schema");
-const User = require("../../schemas/user/user.schema");
-const emptyChecker = require("../../utils/emptyChecker");
+const Review = require('../../schemas/review/review.schema');
+const User = require('../../schemas/user/user.schema');
+const emptyChecker = require('../../utils/emptyChecker');
 
 const createReview = async ({
   userId,
@@ -15,7 +15,7 @@ const createReview = async ({
     ).toObject();
 
     if (!result) {
-      throw new Error("리뷰 등록 실패");
+      throw new Error('리뷰 등록 실패');
     }
     return result;
   } catch (e) {
@@ -37,7 +37,7 @@ const createReport = async ({ commentId, userId, reason }) => {
       }
     );
 
-    return { message: "신고 접수 성공" };
+    return { message: '신고 접수 성공' };
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
@@ -46,9 +46,7 @@ const createReport = async ({ commentId, userId, reason }) => {
 const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
   try {
     const result = await Review.find({ movieId })
-      .skip(skip)
-      .limit(limit)
-      .populate("userId", "profile nickname")
+      .populate('userId', 'profile nickname')
       .lean();
 
     return result;
@@ -63,12 +61,13 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
       {
         $match: {
           movieId,
+          deletedAt: null,
         },
       },
       {
         $group: {
           _id: null,
-          totalStarScore: { $avg: "$starpoint" },
+          totalStarScore: { $avg: '$starpoint' },
         },
       },
     ]);
@@ -107,9 +106,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: "좋아요를 눌렀어요." };
+        return { message: '좋아요를 눌렀어요.' };
       } else {
-        return { message: "이미 좋아요를 눌렀어요." };
+        return { message: '이미 좋아요를 눌렀어요.' };
       }
     }
 
@@ -124,9 +123,9 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: "싫어요를 눌렀어요." };
+        return { message: '싫어요를 눌렀어요.' };
       } else {
-        return { message: "이미 싫어요를 눌렀어요." };
+        return { message: '이미 싫어요를 눌렀어요.' };
       }
     }
 
@@ -145,7 +144,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: "좋아요 취소" };
+        return { message: '좋아요 취소' };
       }
 
       // 형변환 ...
@@ -162,7 +161,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
             },
           }
         );
-        return { message: "싫어요 취소" };
+        return { message: '싫어요 취소' };
       }
     }
   } catch (e) {
@@ -175,7 +174,7 @@ const findCommentIdComment = async ({ commentId }) => {
     const result = await Review.find({ _id: commentId }).lean();
 
     if (!result) {
-      throw new Error("리뷰 조회 실패");
+      throw new Error('리뷰 조회 실패');
     }
     return result;
   } catch (e) {
@@ -193,6 +192,41 @@ const findUserReviews = async ({ userId, skip, limit }) => {
   }
 };
 
+const updateCommentIdComment = async ({
+  commentId,
+  content,
+  starpoint,
+  imgUrls,
+}) => {
+  try {
+    const result = await Review.updateOne(
+      { _id: commentId },
+      {
+        content,
+        starpoint,
+        imgUrls,
+      }
+    ).lean();
+
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
+const deleteCommentIdComment = async ({ commentId }) => {
+  try {
+    const result = await Review.updateOne(
+      { _id: commentId },
+      { deletedAt: new Date().toISOString() }
+    ).lean();
+
+    return result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
+  }
+};
+
 // 모든 신고 리뷰 조회
 const getReportedReviews = async (page, limit) => {
   const skip = page * limit;
@@ -202,13 +236,13 @@ const getReportedReviews = async (page, limit) => {
       reportlist: { $ne: [] }, // reportlist가 빈 배열이 아닌 리뷰만 조회
       reportstatus: { $ne: true },
     })
-      .select("content imgUrls reportlist.reason reportlist._id")
-      .populate("userId", "email")
-      .populate("reportlist.user", "email")
-      .sort("-createdAt");
+      .select('content imgUrls reportlist.reason reportlist._id')
+      .populate('userId', 'email')
+      .populate('reportlist.user', 'email')
+      .sort('-createdAt');
 
     if (reportedReviews.length === 0) {
-      console.log("조회된 신고 리뷰가 없음");
+      console.log('조회된 신고 리뷰가 없음');
     }
 
     const allReports = reportedReviews.flatMap((review) =>
@@ -227,7 +261,7 @@ const getReportedReviews = async (page, limit) => {
 
     return { reportResult: paginatedReports, totalCount };
   } catch (err) {
-    console.error("신고 리뷰 조회 오류: ", err);
+    console.error('신고 리뷰 조회 오류: ', err);
     throw new Error(err.message);
   }
 };
@@ -242,18 +276,18 @@ const findReviewDataByKeyword = async (keyword, page, limit) => {
     const totalCount = await Review.countDocuments({
       reportstatus: { $ne: true },
       reportlist: { $ne: [] },
-      content: { $regex: `${keyword}`, $options: "i" },
+      content: { $regex: `${keyword}`, $options: 'i' },
     });
 
     const results = await Review.find({
       reportstatus: { $ne: true },
       reportlist: { $ne: [] },
-      content: { $regex: `${keyword}`, $options: "i" }, // 리뷰 내용에 검색어가 포함된 리뷰만 조회
+      content: { $regex: `${keyword}`, $options: 'i' }, // 리뷰 내용에 검색어가 포함된 리뷰만 조회
     })
-      .select("content imgUrls reportlist.reason reportlist._id")
-      .populate("userId", "email")
-      .populate("reportlist.user", "email")
-      .sort("-createdAt")
+      .select('content imgUrls reportlist.reason reportlist._id')
+      .populate('userId', 'email')
+      .populate('reportlist.user', 'email')
+      .sort('-createdAt')
       .skip(skip)
       .limit(parsedLimit);
 
@@ -270,7 +304,7 @@ const findReviewDataByKeyword = async (keyword, page, limit) => {
 
     return { reportResult: allReports, totalCount };
   } catch (err) {
-    console.error("신고 리뷰 관련 정보 조회 오류: ", err);
+    console.error('신고 리뷰 관련 정보 조회 오류: ', err);
     throw new Error(err.message);
   }
 };
@@ -279,18 +313,18 @@ const findReviewDataByKeyword = async (keyword, page, limit) => {
 const patchReviewByReportId = async (_id) => {
   try {
     const result = await Review.findOneAndUpdate(
-      { "reportlist._id": _id },
+      { 'reportlist._id': _id },
       { $set: { reportstatus: true } },
       { new: true }
     );
 
     if (!result) {
-      throw new Error("해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.");
+      throw new Error('해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.');
     }
 
     return result;
   } catch (err) {
-    console.error("리뷰 신고 처리중 오류 발생: ", err);
+    console.error('리뷰 신고 처리중 오류 발생: ', err);
   }
 };
 
@@ -298,24 +332,27 @@ const patchReviewByReportId = async (_id) => {
 const patchReviewsByReportIds = async (reportIds) => {
   try {
     const result = await Review.updateMany(
-      { "reportlist._id": { $in: reportIds } },
+      { 'reportlist._id': { $in: reportIds } },
       { $set: { reportstatus: true } }
     );
 
     if (result.matchedCount === 0) {
-      throw new Error("해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.");
+      throw new Error('해당 신고 ID를 가진 리뷰를 찾을 수 없습니다.');
     }
 
     return result;
   } catch (err) {
-    console.error("다중 리뷰 신고 처리중 오류 발생: ", err);
+    console.error('다중 리뷰 신고 처리중 오류 발생: ', err);
   }
 };
+
 module.exports = {
   createReview,
   createReport,
   findCommentIdComment,
   updateLikeCommentIdLikes,
+  updateCommentIdComment,
+  deleteCommentIdComment,
   findMovieIdCommentsArray,
   findMovieIdStarScoreSum,
   findUserReviews,
