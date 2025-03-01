@@ -26,7 +26,6 @@ profileController.get('/me', async (req, res) => {
       nickname: loggedInUser.nickname,
       introduce: loggedInUser.introduce || '',
       profile: loggedInUser.profile || '',
-      followers: loggedInUser.followers || [],
       following: loggedInUser.following || [],
       role: loggedInUser.role || 'user',
     });
