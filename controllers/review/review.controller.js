@@ -17,8 +17,6 @@ const {
   findUserByNickname,
 } = require('../../services/profile/profile.service');
 
-const Review = require('../../schemas/review/review.schema');
-
 const reviewController = require('express').Router();
 
 reviewController.post('/register', checklogin, async (req, res) => {
@@ -39,36 +37,63 @@ reviewController.post('/register', checklogin, async (req, res) => {
   }
 
   try {
-    const _id = await findUserEmailId({ email });
+    const userId = await findUserEmailId({ email });
 
-    if (!_id) {
+    if (!userId) {
       return res.status(404).json({
         result: false,
         message: '등록된 유저 정보가 없습니다',
       });
     }
 
-    const review = await createReview({
-      userId: _id,
+    const result = await createReview({
+      userId,
       movieId,
       imgUrls,
       content,
       starpoint,
     });
 
-    if (!review) {
+    if (result.length === 0) {
       throw new Error('리뷰 등록 실패');
     }
 
+    const finedReview = result
+      .filter(({ deletedAt }) => deletedAt === null)
+      .map((review) => ({
+        _id: review._id,
+        userId: review.userId,
+        content: review.content,
+        imgUrls: review.imgUrls,
+        starpoint: review.starpoint,
+        like:
+          review.like.length !== 0
+            ? review.like.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
+        dislike:
+          review.dislike.length !== 0
+            ? review.dislike.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
+        totalLike: review.like.length || 0,
+        totalDisLike: review.dislike.length || 0,
+        IsOwner: JSON.stringify(userId) === JSON.stringify(review.userId._id),
+        reportstatus: review.reportstatus,
+        createdAt: review.createdAt,
+        deletedAt: review.deletedAt,
+      }));
+
     return res.json({
       result: true,
-      data: review,
+      data: { review: finedReview[0] },
       message: '리뷰가 등록되었습니다.',
     });
   } catch (e) {
     return res.json({
       result: false,
-      data: {},
       message: '리뷰 등록에 실패했습니다.',
     });
   }
@@ -230,10 +255,11 @@ reviewController.post('/totalcomments', async (req, res) => {
     const finedReview = reviews
       .filter(({ deletedAt }) => deletedAt === null)
       .map((review) => ({
-        ...review,
-        IsOwner: JSON.stringify(userId) === JSON.stringify(review.userId._id),
-        totalLike: review.like.length || 0,
-        totalDisLike: review.dislike.length || 0,
+        _id: review._id,
+        userId: review.userId,
+        content: review.content,
+        imgUrls: review.imgUrls,
+        starpoint: review.starpoint,
         like:
           review.like.length !== 0
             ? review.like.some(
@@ -246,6 +272,12 @@ reviewController.post('/totalcomments', async (req, res) => {
                 (item) => JSON.stringify(item) === JSON.stringify(userId)
               )
             : false,
+        totalLike: review.like.length || 0,
+        totalDisLike: review.dislike.length || 0,
+        IsOwner: JSON.stringify(userId) === JSON.stringify(review.userId._id),
+        reportstatus: review.reportstatus,
+        createdAt: review.createdAt,
+        deletedAt: review.deletedAt,
       }));
 
     return res.json({
