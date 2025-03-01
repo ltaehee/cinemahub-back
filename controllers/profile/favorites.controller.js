@@ -101,7 +101,8 @@ favoritesController.get('/movies/:nickname', async (req, res) => {
 // 즐겨찾기 영화인 조회(페이지네이션)
 favoritesController.get('/persons/:nickname', async (req, res) => {
   const { nickname } = req.params;
-  const { page, limit } = req.query;
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
   const offset = (page - 1) * limit;
 
   try {

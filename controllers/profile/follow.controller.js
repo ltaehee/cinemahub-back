@@ -35,7 +35,7 @@ followController.delete('/:nickname', async (req, res) => {
   }
 });
 
-// 팔로워 리스트 조회 (페이지네이션)
+// 팔로워 리스트 조회
 followController.get('/followers/:nickname', async (req, res) => {
   const { nickname } = req.params;
   const { page, limit } = req.query;
@@ -49,7 +49,7 @@ followController.get('/followers/:nickname', async (req, res) => {
     }
 
     const followersData = user.followers
-      .slice(offset, offset + limit) // 페이지네이션
+      .slice(offset, offset + limit)
       .map((follower) => ({
         _id: follower._id,
         nickname: follower.nickname,
@@ -57,8 +57,6 @@ followController.get('/followers/:nickname', async (req, res) => {
         profile: follower.profile,
         deletedAt: follower.deletedAt,
       }));
-
-    console.log('팔로워리스트', followersData);
 
     return res.status(200).json({
       data: followersData,
