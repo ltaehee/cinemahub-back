@@ -14,10 +14,18 @@ const createReview = async ({
       await Review.create({ userId, content, starpoint, imgUrls, movieId })
     ).toObject();
 
-    if (!result) {
+    if (result.length === 0) {
       throw new Error('리뷰 등록 실패');
     }
-    return result;
+
+    const review = await Review.find({ _id: result._id })
+      .populate('userId', 'profile nickname')
+      .lean();
+
+    if (review.length === 0) {
+      throw new Error('리뷰 조회 실패');
+    }
+    return review;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
   }
