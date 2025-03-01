@@ -62,6 +62,7 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
         $match: {
           movieId,
           deletedAt: null,
+          reportstatus: false,
         },
       },
       {
@@ -83,7 +84,10 @@ const findMovieIdStarScoreSum = async ({ movieId }) => {
 
 const getMovieReviewLength = async ({ movieId }) => {
   try {
-    const result = await Review.find({ movieId }).countDocuments();
+    const result = await Review.find({ movieId }).countDocuments({
+      deletedAt: null,
+      reportstatus: false,
+    });
     return result;
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);

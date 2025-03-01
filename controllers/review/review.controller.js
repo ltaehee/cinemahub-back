@@ -219,24 +219,11 @@ reviewController.post('/totalcomments', async (req, res) => {
   try {
     const userId = await findUserEmailId({ email });
     const reviews = await findMovieIdCommentsArray({ movieId });
-    const totalstarpoint = await findMovieIdStarScoreSum({ movieId });
-
-    const totalPages = await Review.countDocuments({
-      movieId,
-      deletedAt: null,
-    });
 
     if (reviews.length === 0) {
       return res.status(404).json({
         result: false,
         message: '조회내역이 없습니다.',
-      });
-    }
-
-    if (!totalstarpoint.totalStarScore) {
-      return res.status(404).json({
-        result: false,
-        message: '별점 내역이 없습니다.',
       });
     }
 
@@ -265,8 +252,6 @@ reviewController.post('/totalcomments', async (req, res) => {
       result: true,
       data: {
         reviews: finedReview,
-        totalstarpoint: totalstarpoint.totalStarScore.toFixed(1),
-        totalPages,
       },
       message: '전체 리뷰 조회 성공',
     });
