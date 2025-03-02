@@ -16,7 +16,6 @@ const fetchMovieDetailsPosters = async (movieId, page, limit) => {
         (Date.now() - new Date(cachedMovie.updatedAt).getTime()) / 1000;
 
       if (timeDiff < CACHE_TIME) {
-        console.log(`MongoDB 캐시된 데이터 반환: 영화 ID ${movieId}`);
         return {
           posters: cachedMovie.posterPath.slice(skip, skip + limit),
           totalCount: cachedMovie.posterPath.length,

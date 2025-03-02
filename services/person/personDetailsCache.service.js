@@ -49,8 +49,6 @@ const fetchPersonDetails = async (personId) => {
       new: true,
     });
 
-    console.log(`MongoDB에 데이터 저장 완료: 인물 ID ${personId}`);
-
     return personDetails;
   } catch (error) {
     console.error(

@@ -16,7 +16,6 @@ const fetchPersonDetailsImages = async (personId, page, limit) => {
         (Date.now() - new Date(cachedPerson.updatedAt).getTime()) / 1000;
 
       if (timeDiff < CACHE_TIME) {
-        console.log(`MongoDB 캐시된 데이터 반환: 영화인 ID ${personId}`);
         return {
           images: cachedPerson.imgPath.slice(skip, skip + limit),
           totalCount: cachedPerson.imgPath.length,

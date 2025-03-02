@@ -25,7 +25,7 @@ const fetchMovies = async () => {
         });
 
         const totalPages = initialResponse.data.total_pages;
-        const pagesToFetch = Math.min(totalPages, 500);
+        const pagesToFetch = Math.min(totalPages, 100);
 
         for (let page = 1; page <= pagesToFetch; page += 5) {
           const pageBatch = Array.from(
@@ -107,12 +107,12 @@ const fetchMovies = async () => {
       }
     }
 
-    console.log(`총 ${totalMovies}개의 영화 데이터 저장 완료`);
+    console.log(`영화 데이터 저장 완료`);
   } catch (error) {
     console.error("TMDB API 요청 실패:", error.message);
   }
 };
-
+fetchMovies();
 cron.schedule("0 0 * * *", () => {
   fetchMovies();
 });
@@ -177,7 +177,8 @@ const findMoviesByGenre = async (genreId, page, limit, sortBy) => {
       .skip(skip)
       .limit(limit)
       .select("genreIds movieId posterPath releaseDate title -_id")
-      .sort(sort);
+      .sort(sort)
+      .lean();
     return movies;
   } catch (err) {
     console.error("DB에서 영화 조회 중 오류 발생: ", err);

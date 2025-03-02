@@ -11,11 +11,8 @@ const fetchMovieDetails = async (movieId) => {
       const timeDiff = (Date.now() - cachedMovie.updatedAt) / 1000;
 
       if (timeDiff < CACHE_TIME) {
-        console.log(`MongoDB 캐시된 데이터 반환: 영화 ID ${movieId}`);
         return cachedMovie;
       }
-
-      console.log(`MongoDB 캐시 만료, 새 데이터 요청: 영화 ID ${movieId}`);
     }
 
     const detailsResponse = await tmdbApi.get(`/movie/${movieId}`, {

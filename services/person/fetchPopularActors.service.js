@@ -31,8 +31,6 @@ const fetchPopularActors = async () => {
         console.error(`배우 ${actor.name} 업데이트 실패:`, error.message);
       }
     }
-
-    console.log("인기 배우 데이터 업데이트 완료");
   } catch (error) {
     console.error("TMDB 배우 데이터 요청 실패:", error.message);
   }

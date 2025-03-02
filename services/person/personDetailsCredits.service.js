@@ -17,7 +17,6 @@ const fetchPersonDetailsCredits = async (personId, page, limit) => {
         (Date.now() - new Date(cachedPerson.updatedAt).getTime()) / 1000;
 
       if (timeDiff < CACHE_TIME) {
-        console.log(`MongoDB 캐시된 데이터 반환: 영화인 ID ${personId}`);
         return {
           totalCount: cachedPerson.credits.length,
           credits: cachedPerson.credits.slice(skip, skip + limit),
@@ -35,9 +34,9 @@ const fetchPersonDetailsCredits = async (personId, page, limit) => {
     const { data } = response;
     const { cast, crew } = data;
 
-    const movieIds = await Movie.find({}, { movieId: 1 }).then((movies) =>
-      movies.map((movie) => String(movie.movieId))
-    );
+    const movieIds = await Movie.find({}, { movieId: 1 })
+      .lean()
+      .then((movies) => movies.map((movie) => String(movie.movieId)));
 
     const creditsMap = new Map();
 
