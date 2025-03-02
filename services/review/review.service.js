@@ -107,47 +107,38 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
   try {
     const result = await findCommentIdComment({ commentId });
 
-    if (likes.like) {
-      if (!result[0].like.includes(userId)) {
-        await Review.updateOne(
-          { _id: commentId },
-          {
-            $push: { like: userId },
-            $pull: {
-              dislike: userId,
-            },
-          }
-        );
-        return { message: '좋아요를 눌렀어요.' };
-      } else {
-        return { message: '이미 좋아요를 눌렀어요.' };
-      }
-    }
+    const includedLike = result[0].like.some(
+      (item) => JSON.stringify(item) === JSON.stringify(userId)
+    );
 
-    if (likes.dislike) {
-      if (!result[0].dislike.includes(userId)) {
-        await Review.updateOne(
-          { _id: commentId },
-          {
-            $push: { dislike: userId },
-            $pull: {
-              like: userId,
-            },
-          }
-        );
-        return { message: '싫어요를 눌렀어요.' };
-      } else {
-        return { message: '이미 싫어요를 눌렀어요.' };
-      }
-    }
+    const includeddisLike = result[0].dislike.some(
+      (item) => JSON.stringify(item) === JSON.stringify(userId)
+    );
 
-    if (likes.like === false && likes.dislike === false) {
-      // 형변환 ...
-      if (
-        result[0].like.some(
-          (item) => JSON.stringify(item) === JSON.stringify(userId)
-        )
-      ) {
+    if (likes.like === true && likes.dislike === false) {
+      await Review.updateOne(
+        { _id: commentId },
+        {
+          $push: { like: userId },
+          $pull: {
+            dislike: userId,
+          },
+        }
+      );
+      return { message: '좋아요를 눌렀어요.' };
+    } else if (likes.like === false && likes.dislike === true) {
+      await Review.updateOne(
+        { _id: commentId },
+        {
+          $push: { dislike: userId },
+          $pull: {
+            like: userId,
+          },
+        }
+      );
+      return { message: '싫어요를 눌렀어요.' };
+    } else if (likes.like === false && likes.dislike === false) {
+      if (includedLike) {
         await Review.updateOne(
           { _id: commentId },
           {
@@ -159,12 +150,7 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
         return { message: '좋아요 취소' };
       }
 
-      // 형변환 ...
-      if (
-        result[0].dislike.some(
-          (item) => JSON.stringify(item) === JSON.stringify(userId)
-        )
-      ) {
+      if (includeddisLike) {
         await Review.updateOne(
           { _id: commentId },
           {
@@ -175,6 +161,8 @@ const updateLikeCommentIdLikes = async ({ userId, commentId, likes }) => {
         );
         return { message: '싫어요 취소' };
       }
+    } else {
+      return false;
     }
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);

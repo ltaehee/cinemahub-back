@@ -332,7 +332,7 @@ reviewController.post('/likes', checklogin, async (req, res) => {
     if (!result) {
       return res.status(500).json({
         result: false,
-        message: '좋아요/싫어요 등록에 실패했습니다.',
+        message: '좋아요/싫어요 등록 실패',
       });
     }
 
@@ -348,6 +348,18 @@ reviewController.post('/likes', checklogin, async (req, res) => {
     return res.json({
       result: true,
       data: {
+        like:
+          comment[0].like.length !== 0
+            ? comment[0].like.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
+        dislike:
+          comment[0].dislike.length !== 0
+            ? comment[0].dislike.some(
+                (item) => JSON.stringify(item) === JSON.stringify(userId)
+              )
+            : false,
         totalLike: comment[0].like.length,
         totalDisLike: comment[0].dislike.length,
       },
