@@ -73,7 +73,8 @@ followController.get('/followers/:nickname', async (req, res) => {
 // 팔로잉 리스트 조회 (페이지네이션)
 followController.get('/following/:nickname', async (req, res) => {
   const { nickname } = req.params;
-  const { page, limit } = req.query;
+  const page = Number(req.query.page);
+  const limit = Number(req.query.limit);
   const offset = (page - 1) * limit;
 
   try {
@@ -91,7 +92,6 @@ followController.get('/following/:nickname', async (req, res) => {
         profile: following.profile,
         deletedAt: following.deletedAt,
       }));
-    console.log('팔로잉리스트', followingData);
 
     return res.status(200).json({
       data: followingData,
