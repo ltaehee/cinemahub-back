@@ -439,6 +439,10 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
   const { page, limit } = req.query;
   const offset = (page - 1) * limit;
 
+  let email = null;
+  if (req.session.user) {
+    email = req.session.user.email;
+  }
   try {
     const targetUser = await findUserByNickname(nickname);
     if (!targetUser) {
@@ -447,6 +451,8 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
         message: '해당 닉네임의 사용자가 없습니다.',
       });
     }
+
+    const currentUserId = email ? await findUserEmailId({ email }) : null;
 
     // 전체 리뷰 조회
     const allReviews = await findUserReviews({ userId: targetUser._id });
@@ -462,9 +468,24 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
     const paginatedReviews = sortedReviews.slice(offset, offset + limit);
 
     const finedReview = paginatedReviews.map((review) => ({
-      ...review,
+      _id: review._id,
+      userId: review.userId,
+      content: review.content,
+      imgUrls: review.imgUrls,
+      starpoint: review.starpoint,
+      like: review.like.some(
+        (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
+      ),
+      dislike: review.dislike.some(
+        (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
+      ),
       totalLike: review.like.length || 0,
       totalDisLike: review.dislike.length || 0,
+      IsOwner:
+        JSON.stringify(currentUserId) === JSON.stringify(review.userId._id),
+      reportstatus: review.reportstatus,
+      createdAt: review.createdAt,
+      deletedAt: review.deletedAt,
     }));
 
     return res.json({
