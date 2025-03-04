@@ -172,13 +172,10 @@ const findMoviesByGenre = async (genreId, page, limit, sortBy) => {
     };
 
     const sort = sortOptions[sortBy] || { popularity: -1 };
-
     const totalMovies = await Movie.countDocuments({
       genreIds: { $in: [genreId] },
     });
-
     const totalPages = Math.ceil(totalMovies / limit);
-
     const movies = await Movie.find({
       genreIds: { $in: [genreId] },
     })
