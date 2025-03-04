@@ -112,7 +112,7 @@ const fetchMovies = async () => {
     console.error("TMDB API 요청 실패:", error.message);
   }
 };
-fetchMovies();
+
 cron.schedule("0 0 * * *", () => {
   fetchMovies();
 });
