@@ -16,6 +16,7 @@ const emptyChecker = require('../../utils/emptyChecker');
 const {
   findUserByNickname,
 } = require('../../services/profile/profile.service');
+const { findMoviesByTmdbIds } = require('../../services/movie/movie.service');
 
 const reviewController = require('express').Router();
 
@@ -458,6 +459,10 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
     // 전체 리뷰 조회
     const allReviews = await findUserReviews({ userId: targetUser._id });
 
+    const movieIds = allReviews.map((review) => review.movieId);
+
+    const movies = await findMoviesByTmdbIds(movieIds);
+
     const total = allReviews.length;
 
     // 최신순 정렬
@@ -468,26 +473,33 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
     // 페이지네이션 적용
     const paginatedReviews = sortedReviews.slice(offset, offset + limit);
 
-    const finedReview = paginatedReviews.map((review) => ({
-      _id: review._id,
-      userId: review.userId,
-      content: review.content,
-      imgUrls: review.imgUrls,
-      starpoint: review.starpoint,
-      like: review.like.some(
-        (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
-      ),
-      dislike: review.dislike.some(
-        (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
-      ),
-      totalLike: review.like.length || 0,
-      totalDisLike: review.dislike.length || 0,
-      IsOwner:
-        JSON.stringify(currentUserId) === JSON.stringify(review.userId._id),
-      reportstatus: review.reportstatus,
-      createdAt: review.createdAt,
-      deletedAt: review.deletedAt,
-    }));
+    const finedReview = paginatedReviews.map((review) => {
+      const movie = movies.find((m) => m.movieId === review.movieId) || {};
+      return {
+        _id: review._id,
+        userId: review.userId,
+        content: review.content,
+        imgUrls: review.imgUrls,
+        starpoint: review.starpoint,
+        movieTitle: movie.title || '제목 없음',
+        moviePoster: movie.posterPath
+          ? `https://image.tmdb.org/t/p/w500${movie.posterPath}`
+          : '',
+        like: review.like.some(
+          (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
+        ),
+        dislike: review.dislike.some(
+          (item) => JSON.stringify(item) === JSON.stringify(currentUserId)
+        ),
+        totalLike: review.like.length || 0,
+        totalDisLike: review.dislike.length || 0,
+        IsOwner:
+          JSON.stringify(currentUserId) === JSON.stringify(review.userId._id),
+        reportstatus: review.reportstatus,
+        createdAt: review.createdAt,
+        deletedAt: review.deletedAt,
+      };
+    });
 
     return res.json({
       result: true,
