@@ -456,8 +456,9 @@ reviewController.get('/user-reviews/:nickname', async (req, res) => {
 
     const currentUserId = email ? await findUserEmailId({ email }) : null;
 
-    // 전체 리뷰 조회
-    const allReviews = await findUserReviews({ userId: targetUser._id });
+    const allReviews = await findUserReviews({
+      userId: targetUser._id,
+    });
 
     const movieIds = allReviews.map((review) => review.movieId);
 
