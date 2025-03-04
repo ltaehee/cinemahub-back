@@ -54,6 +54,8 @@ const createReport = async ({ commentId, userId, reason }) => {
 const findMovieIdCommentsArray = async ({ movieId, skip, limit }) => {
   try {
     const result = await Review.find({ movieId })
+      .skip(skip)
+      .limit(limit)
       .populate('userId', 'profile nickname')
       .lean();
 

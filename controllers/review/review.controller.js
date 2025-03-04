@@ -235,7 +235,8 @@ reviewController.get('/:movieId', async (req, res) => {
 });
 
 reviewController.post('/totalcomments', async (req, res) => {
-  const { movieId } = req.body;
+  const { movieId, page, limit } = req.body;
+  const skip = (page - 1) * limit;
 
   let email = null;
   if (req.session.user) {
@@ -244,7 +245,7 @@ reviewController.post('/totalcomments', async (req, res) => {
 
   try {
     const userId = await findUserEmailId({ email });
-    const reviews = await findMovieIdCommentsArray({ movieId });
+    const reviews = await findMovieIdCommentsArray({ movieId, skip, limit });
 
     if (reviews.length === 0) {
       return res.status(404).json({
