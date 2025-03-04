@@ -1,6 +1,6 @@
-const User = require("../../schemas/user/user.schema");
+const User = require('../../schemas/user/user.schema');
 
-const createUser = async ({ email, nickname, profile, role = "user" }) => {
+const createUser = async ({ email, nickname, profile, role = 'user' }) => {
   try {
     const result = await User.create({
       email,
@@ -8,7 +8,7 @@ const createUser = async ({ email, nickname, profile, role = "user" }) => {
       profile,
       role,
     });
-    if (!result) throw new Error("유저 생성 실패");
+    if (!result) throw new Error('유저 생성 실패');
     return result.toObject();
   } catch (e) {
     if (e instanceof Error) throw new Error(e.message);
@@ -52,15 +52,15 @@ const findUserNicknameByKeyword = async (keyword, page, limit) => {
   try {
     // 검색된 전체 유저 수 계산
     const totalCount = await User.countDocuments({
-      nickname: { $regex: `^${keyword}`, $options: "i" },
+      nickname: { $regex: `^${keyword}`, $options: 'i' },
       deletedAt: null,
     });
 
     const result = await User.find({
-      nickname: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 이름 검색
+      nickname: { $regex: `^${keyword}`, $options: 'i' }, // keyword로 시작하는 모든 이름 검색
       deletedAt: null, // 삭제되지 않은 유저만 검색
     })
-      .sort("-createdAt")
+      .sort('-createdAt')
       .skip(skip)
       .limit(parsedLimit);
 
@@ -69,7 +69,7 @@ const findUserNicknameByKeyword = async (keyword, page, limit) => {
       totalCount,
     };
   } catch (err) {
-    console.error("유저 검색 오류: ", err);
+    console.error('유저 검색 오류: ', err);
     throw new Error(err.message);
   }
 };
@@ -80,7 +80,7 @@ const getUsers = async (page, limit) => {
   const parsedLimit = parseInt(limit, 10); // 10진수로 변환
   try {
     const users = await User.find({ deletedAt: null })
-      .sort("-createdAt")
+      .sort('-createdAt')
       .skip(skip)
       .limit(parsedLimit);
 
@@ -91,7 +91,7 @@ const getUsers = async (page, limit) => {
       totalCount,
     };
   } catch (err) {
-    console.error("전체 유저 조회 오류: ", err);
+    console.error('전체 유저 조회 오류: ', err);
     throw new Error(err.message);
   }
 };
@@ -106,12 +106,12 @@ const patchUserByEmail = async (email) => {
     );
 
     if (!result) {
-      throw new Error("해당 이메일의 유저를 찾을 수 없습니다.");
+      throw new Error('해당 이메일의 유저를 찾을 수 없습니다.');
     }
 
     return result;
   } catch (err) {
-    console.error("유저 삭제중 오류 발생: ", err);
+    console.error('유저 삭제중 오류 발생: ', err);
     throw new Error(err.message);
   }
 };
@@ -126,8 +126,19 @@ const patchUsersByEmails = async (emails) => {
 
     return result;
   } catch (err) {
-    console.error("다중 유저 삭제중 오류 발생: ", err);
+    console.error('다중 유저 삭제중 오류 발생: ', err);
     throw new Error(err.message);
+  }
+};
+
+// 탈퇴한 유저 확인 여부
+const findDeletedUserEmailBoolean = async ({ email }) => {
+  try {
+    const result = await User.find({ email, deletedAt: { $ne: null } }).lean();
+    // []이 나옴 true로 인식
+    return result.length !== 0 && result;
+  } catch (e) {
+    if (e instanceof Error) throw new Error(e.message);
   }
 };
 
@@ -140,4 +151,5 @@ module.exports = {
   patchUserByEmail,
   patchUsersByEmails,
   getUsers,
+  findDeletedUserEmailBoolean,
 };
