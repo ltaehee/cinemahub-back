@@ -13,7 +13,7 @@ const {
 // 배우, 감독정보 api 호출로 가져오기
 searchController.get("/people", async (req, res) => {
   const { name, page = 1 } = req.query;
-
+  console.log("name: ", name);
   if (!name) {
     return res.status(400).json({ error: "배우 이름을 입력하세요" });
   }

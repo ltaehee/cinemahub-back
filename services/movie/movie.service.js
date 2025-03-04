@@ -124,12 +124,14 @@ const findMovieByKeyword = async (keyword, page = 1, limit = 16) => {
       title: { $regex: `^${keyword}`, $options: "i" }, // keyword로 시작하는 모든 영화 검색
     })
       .skip((page - 1) * limit) // 이전 페이지 데이터 건너뛰기
-      .limit(limit);
+      .limit(limit)
+      .select("movieId posterPath title releaseDate genreIds");
 
     const totalCount = await Movie.countDocuments({
       title: { $regex: `^${keyword}`, $options: "i" },
     });
 
+    console.log("movies: ", movies.length);
     console.log("totalCount: ", totalCount);
 
     return { movies, totalCount };
