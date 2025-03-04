@@ -186,7 +186,13 @@ const findCommentIdComment = async ({ commentId }) => {
 
 const findUserReviews = async ({ userId, skip, limit }) => {
   try {
-    const result = await Review.find({ userId }).skip(skip).limit(limit).lean();
+    const result = await Review.find({
+      userId,
+      deletedAt: { $eq: null },
+    })
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     return result;
   } catch (e) {
