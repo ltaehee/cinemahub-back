@@ -173,6 +173,12 @@ const findMoviesByGenre = async (genreId, page, limit, sortBy) => {
 
     const sort = sortOptions[sortBy] || { popularity: -1 };
 
+    const totalMovies = await Movie.countDocuments({
+      genreIds: { $in: [genreId] },
+    });
+
+    const totalPages = Math.ceil(totalMovies / limit);
+
     const movies = await Movie.find({
       genreIds: { $in: [genreId] },
     })
@@ -181,7 +187,12 @@ const findMoviesByGenre = async (genreId, page, limit, sortBy) => {
       .select("genreIds movieId posterPath releaseDate title -_id")
       .sort(sort)
       .lean();
-    return movies;
+
+    return {
+      movies,
+      totalPages,
+      totalMovies,
+    };
   } catch (err) {
     console.error("DB에서 영화 조회 중 오류 발생: ", err);
     throw new Error("영화 조회 실패");
