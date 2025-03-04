@@ -51,7 +51,6 @@ const findPeopleByName = async (name, page = 1) => {
         ).values()
       );
     });
-    console.log("filteredPeoples: ", filteredPeoples);
 
     // 모든 배우의 `known_for` 영화 목록을 하나의 배열로 합치기
     const allMovies = filteredPeoples.flatMap((person) => person.known_for);
@@ -94,7 +93,12 @@ const findPeopleByName = async (name, page = 1) => {
     }));
 
     // api 결과를 캐시에 저장
-    const result = { people: finalPeoples, movies: finalMovies, totalPages };
+    const result = {
+      people: finalPeoples,
+      movies: finalMovies,
+      totalPages,
+      hasMore: page < totalPages,
+    };
 
     cache.set(cacheKey, result);
     console.log(`캐시에 저장: ${name} `);

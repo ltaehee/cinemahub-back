@@ -134,7 +134,11 @@ const findMovieByKeyword = async (keyword, page = 1, limit = 16) => {
     console.log("movies: ", movies.length);
     console.log("totalCount: ", totalCount);
 
-    return { movies, totalCount };
+    const hasMore = page * limit < totalCount;
+
+    console.log("hasMore: ", hasMore);
+
+    return { movies, totalCount, hasMore };
   } catch (err) {
     console.error("영화 검색 오류: ", err);
     throw new Error(err.message);

@@ -36,7 +36,7 @@ searchController.get("/movie", async (req, res) => {
   }
 
   try {
-    const { movies, totalCount } = await findMovieByKeyword(
+    const { movies, totalCount, hasMore } = await findMovieByKeyword(
       keyword,
       Number(page),
       Number(limit)
@@ -46,7 +46,7 @@ searchController.get("/movie", async (req, res) => {
       return res.status(404).json({ error: "검색된 영화가 없습니다." });
     }
 
-    return res.json({ movies, totalCount });
+    return res.json({ movies, totalCount, hasMore });
   } catch (err) {
     res.status(500).json({ err: "서버 오류" });
   }
