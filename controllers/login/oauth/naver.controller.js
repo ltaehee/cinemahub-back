@@ -11,7 +11,10 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
 const { InvaildRequestError } = require('../../../utils/error');
-const { findUserEmailBoolean } = require('../../../services/user/user.service');
+const {
+  findUserEmailBoolean,
+  findDeletedUserEmailBoolean,
+} = require('../../../services/user/user.service');
 const naverController = require('express').Router();
 
 /** naver oauth
@@ -62,6 +65,12 @@ naverController.get('/callback', async (req, res) => {
           maxAge: 60 * 60 * 1000,
         });
         return res.redirect(`${FRONT_URL}register?social=2`);
+      }
+
+      // 탈퇴한 회원일 경우 false, 아니면 [{}]
+      const IsDeletedUser = await findDeletedUserEmailBoolean({ email });
+      if (IsDeletedUser) {
+        return res.redirect(`${FRONT_URL}login?user=deleted`);
       }
 
       req.session.loginState = true;
