@@ -255,7 +255,10 @@ reviewController.post('/totalcomments', async (req, res) => {
     }
 
     const finedReview = reviews
-      .filter(({ deletedAt }) => deletedAt === null)
+      .filter(
+        ({ deletedAt, reportstatus }) =>
+          deletedAt === null && reportstatus === false
+      )
       .map((review) => ({
         _id: review._id,
         userId: review.userId,
