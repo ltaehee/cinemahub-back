@@ -96,7 +96,6 @@ const getMovieReviewLength = async ({ movieId }) => {
   try {
     const result = await Review.find({ movieId }).countDocuments({
       deletedAt: null,
-      reportstatus: false,
     });
     return result;
   } catch (e) {
