@@ -10,9 +10,10 @@
     "lru-cache": "^11.0.2",
     "memorystore": "^1.6.7",
     "mongoose": "^8.10.1",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "@aws-sdk/client-s3": "^3.758.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-s3": "^3.750.0"
+    "@aws-sdk/client-s3": "^3.758.0"
   }
 }
