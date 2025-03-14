@@ -29,4 +29,11 @@ app.use('images', express.static('images'));
 app.use(cookieParser());
 app.use('/api', apiController);
 
+app.get('/', (req, res) => {
+  res.status(200).send('Backend is running!');
+});
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Health check successful!' });
+});
+
 module.exports = app;
