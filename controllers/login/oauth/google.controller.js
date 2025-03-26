@@ -76,11 +76,23 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
         return res.redirect(`${FRONT_URL}login?user=deleted`);
       }
 
+      // req.session.loginState = true;
+      // req.session.user = { email };
+
+      // // 기등록 유저일 떄 바로 로그인
+      // return res.redirect(FRONT_URL);
+
       req.session.loginState = true;
       req.session.user = { email };
 
-      // 기등록 유저일 떄 바로 로그인
-      return res.redirect(FRONT_URL);
+      req.session.save((err) => {
+        if (err) {
+          console.error('세션 저장 중 오류:', err);
+          return res.redirect(`${FRONT_URL}login?error=session`);
+        }
+
+        return res.redirect(FRONT_URL);
+      });
     }
   } catch (e) {
     if (e instanceof InvaildRequestError) {

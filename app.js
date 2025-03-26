@@ -32,11 +32,11 @@ app.use(
     store: new MemoryStore({
       checkPeriod: 24 * 60 * 60 * 1000,
     }),
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-    },
+    // cookie: {
+    //   secure: true,
+    //   httpOnly: true,
+    //   sameSite: 'none',
+    // },
   })
 );
 
