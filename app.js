@@ -18,7 +18,7 @@ app.use(
   cors({
     origin: [
       'http://localhost:5173',
-      'https://web-cinemahub-front-m88gjvsd5fb295a9.sel4.cloudtype.app/',
+      'https://web-cinemahub-front-m88gjvsd5fb295a9.sel4.cloudtype.app',
     ],
     credentials: true,
   })

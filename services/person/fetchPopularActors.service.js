@@ -1,11 +1,11 @@
-const cron = require("node-cron");
-const popularPersonCacheSchema = require("../../schemas/person/popularPersonCache.schema");
-const { tmdbApi } = require("../tmdbApi");
+const cron = require('node-cron');
+const popularPersonCacheSchema = require('../../schemas/person/popularPersonCache.schema');
+const { tmdbApi } = require('../tmdbApi');
 
 const fetchPopularActors = async () => {
   try {
     const response = await tmdbApi.get(`/person/popular`, {
-      params: { language: "ko-KR", page: 1 },
+      params: { language: 'ko-KR', page: 1 },
     });
 
     const actors = response.data.results;
@@ -32,11 +32,11 @@ const fetchPopularActors = async () => {
       }
     }
   } catch (error) {
-    console.error("TMDB 배우 데이터 요청 실패:", error.message);
+    console.error('TMDB 배우 데이터 요청 실패:', error.message);
   }
 };
 
-cron.schedule("0 0 * * *", fetchPopularActors);
+cron.schedule('0 0 * * *', fetchPopularActors);
 
 const getPopularActors = async () => {
   try {
@@ -46,7 +46,7 @@ const getPopularActors = async () => {
 
     return actors;
   } catch (error) {
-    console.error("인기 배우 데이터 조회 실패:", error.message);
+    console.error('인기 배우 데이터 조회 실패:', error.message);
     return [];
   }
 };
