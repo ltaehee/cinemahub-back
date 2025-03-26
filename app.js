@@ -27,11 +27,16 @@ app.use(
   session({
     name: SESSION_NAME,
     secret: SESSION_SERECT_KEY,
-    resave: 'false',
+    resave: false,
     saveUninitialized: true,
     store: new MemoryStore({
       checkPeriod: 24 * 60 * 60 * 1000,
     }),
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+    },
   })
 );
 
