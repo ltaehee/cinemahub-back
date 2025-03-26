@@ -2,6 +2,7 @@ const { SESSION_NAME, SESSION_SERECT_KEY } = require('./consts/app');
 require('./db_init');
 const apiController = require('./controllers');
 const express = require('express');
+const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
@@ -13,6 +14,15 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+app.use(
+  cors({
+    origin: [
+      'http://localhost:5173',
+      'https://web-cinemahub-front-m88gjvsd5fb295a9.sel4.cloudtype.app/',
+    ],
+    credentials: true,
+  })
+);
 app.use(
   session({
     name: SESSION_NAME,
