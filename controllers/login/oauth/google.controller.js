@@ -57,12 +57,14 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
     const requestUserinfo = await axios.get(requestUserinfoUrl);
 
-    console.log('📌 [debug] userinfo 요청 URL:', requestUserinfoUrl);
     console.log('📌 [debug] userinfo:', requestUserinfo);
 
     if (requestUserinfo.status === 200) {
       const { email, name, picture } = requestUserinfo.data;
       const result = await findUserEmailBoolean({ email });
+
+      console.log('📌 [debug] requestUserinfo.data:', requestUserinfo.data);
+      console.log('📌 [debug] result:', result);
 
       // 등록된 회원이 아닐 경우
       if (!result) {
