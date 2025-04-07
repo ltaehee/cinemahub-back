@@ -1,4 +1,4 @@
-const { SESSION_NAME, SESSION_SERECT_KEY } = require('./consts/app');
+const { SESSION_NAME, SESSION_SECRET_KEY } = require('./consts/app');
 require('./db_init');
 const apiController = require('./controllers');
 const express = require('express');
@@ -28,7 +28,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 app.use(
   session({
     name: SESSION_NAME,
-    secret: SESSION_SERECT_KEY,
+    secret: SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: true,
     store: new MemoryStore({

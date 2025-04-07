@@ -13,9 +13,9 @@ const JWT_SECRET_KEY = 'jwt_secret_key';
 const SESSION_NAME = vaildateEnv('string', process.env.SESSION_NAME);
 
 // const SESSION_SERECT_KEY = 'cinamahub_serect_key';
-const SESSION_SERECT_KEY = vaildateEnv(
+const SESSION_SECRET_KEY = vaildateEnv(
   'string',
-  process.env.SESSION_SERECT_KEY
+  process.env.SESSION_SECRET_KEY
 );
 
 // vaildateEnv(
@@ -34,7 +34,7 @@ module.exports = {
   MONGODB_URL,
   JWT_SECRET_KEY,
   SESSION_NAME,
-  SESSION_SERECT_KEY,
+  SESSION_SECRET_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
   AWS_REGION,
