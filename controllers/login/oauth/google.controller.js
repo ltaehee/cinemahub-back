@@ -30,6 +30,7 @@ googleController.get('/google-oauth', (req, res) => {
  * /api/login/google-oauth-redirect
  */
 googleController.get('/google-oauth-redirect', async (req, res) => {
+  console.log('✅ [2] 리디렉션 도착!', req.query);
   const { code } = req.query;
 
   const redirectUrl = `https://oauth2.googleapis.com/token`;
