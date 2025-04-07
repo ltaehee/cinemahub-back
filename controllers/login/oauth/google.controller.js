@@ -85,9 +85,15 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       return res.redirect(FRONT_URL);
     }
   } catch (e) {
-    if (e instanceof InvaildRequestError) {
-      console.error(e.message);
+    console.error('❌ [3] Google OAuth 토큰 요청 실패!');
+    if (e.response) {
+      console.error('📦 에러 응답 데이터:', e.response.data);
+      console.error('🌐 상태코드:', e.response.status);
+    } else {
+      console.error('💥 기타 에러:', e.message);
     }
+
+    return res.status(500).send('Google 로그인 중 오류 발생');
   }
 });
 
