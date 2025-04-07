@@ -21,6 +21,7 @@ const googleController = require('express').Router();
  * /api/login/google-oauth
  */
 googleController.get('/google-oauth', (req, res) => {
+  console.log('✅ [1] 구글 로그인 진입');
   const oauthEntryUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${googleOauthRedirectUri}&response_type=code&scope=email profile`;
   res.redirect(oauthEntryUrl);
 });
