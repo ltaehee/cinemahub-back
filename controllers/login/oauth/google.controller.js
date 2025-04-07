@@ -58,6 +58,7 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     const requestUserinfo = await axios.get(requestUserinfoUrl);
 
     console.log('📌 [debug] userinfo 요청 URL:', requestUserinfoUrl);
+    console.log('📌 [debug] userinfo:', requestUserinfo);
 
     if (requestUserinfo.status === 200) {
       const { email, name, picture } = requestUserinfo.data;
