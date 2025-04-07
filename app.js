@@ -3,8 +3,8 @@ require('./db_init');
 const apiController = require('./controllers');
 const express = require('express');
 const cors = require('cors');
-const cookieParser = require('cookie-parser');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 
 require('./services/movie/movie.service');
 require('./services/person/fetchPopularActors.service');
