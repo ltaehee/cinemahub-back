@@ -23,7 +23,6 @@ app.use(
     credentials: true,
   })
 );
-const isProduction = process.env.NODE_ENV === 'production';
 
 app.use(
   session({
@@ -35,9 +34,9 @@ app.use(
       checkPeriod: 24 * 60 * 60 * 1000,
     }),
     cookie: {
-      secure: isProduction, // 배포 환경일 때만 HTTPS 쿠키 설정
+      secure: false,
       httpOnly: true,
-      sameSite: isProduction ? 'None' : 'Lax',
+      sameSite: 'Lax',
     },
   })
 );

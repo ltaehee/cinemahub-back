@@ -12,16 +12,10 @@ const JWT_SECRET_KEY = 'jwt_secret_key';
 
 const SESSION_NAME = vaildateEnv('string', process.env.SESSION_NAME);
 
-// const SESSION_SERECT_KEY = 'cinamahub_serect_key';
 const SESSION_SECRET_KEY = vaildateEnv(
   'string',
   process.env.SESSION_SECRET_KEY
 );
-
-// vaildateEnv(
-//   'string',
-//   process.env.SESSION_SERECT_KEY
-// );
 
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
