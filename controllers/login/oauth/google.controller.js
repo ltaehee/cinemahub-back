@@ -43,6 +43,8 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       redirect_uri: googleOauthRedirectUri,
       grant_type: 'authorization_code',
     });
+    console.log('✅ [3] axios 응답 전체:', request);
+    console.log('✅ [4] request.data:', request?.data);
 
     const { error, error_description } = request.data;
 
@@ -85,18 +87,13 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       return res.redirect(FRONT_URL);
     }
   } catch (e) {
+    // 🔽 여기를 이렇게 고치라는 뜻이었어요!
     console.error('❌ [3] Google OAuth 토큰 요청 실패!');
     if (e.response) {
-      console.error(
-        '📦 에러 응답 데이터:',
-        JSON.stringify(e.response.data, null, 2)
-      );
+      console.error('📦 에러 응답 데이터:', e.response.data);
       console.error('🌐 상태코드:', e.response.status);
-      console.error('📝 헤더:', e.response.headers);
-    } else if (e.request) {
-      console.error('📡 요청은 갔는데 응답이 없음:', e.request);
     } else {
-      console.error('💥 요청 시도 자체가 실패:', e.message);
+      console.error('💥 기타 에러:', e.message);
     }
 
     return res.status(500).send('Google 로그인 중 오류 발생');
