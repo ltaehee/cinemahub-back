@@ -23,6 +23,8 @@ app.use(
     credentials: true,
   })
 );
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(
   session({
     name: SESSION_NAME,
@@ -32,11 +34,11 @@ app.use(
     store: new MemoryStore({
       checkPeriod: 24 * 60 * 60 * 1000,
     }),
-    // cookie: {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: 'none',
-    // },
+    cookie: {
+      secure: isProduction, // 배포 환경일 때만 HTTPS 쿠키 설정
+      httpOnly: true,
+      sameSite: isProduction ? 'None' : 'Lax',
+    },
   })
 );
 
