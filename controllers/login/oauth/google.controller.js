@@ -43,8 +43,8 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       redirect_uri: googleOauthRedirectUri,
       grant_type: 'authorization_code',
     });
-    console.log('✅ [3] axios 응답 전체:', request);
-    console.log('✅ [4] request.data:', request?.data);
+    // console.log('✅ [3] axios 응답 전체:', request);
+    // console.log('✅ [4] request.data:', request?.data);
 
     const { error, error_description } = request.data;
 
@@ -56,6 +56,8 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 
     const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
     const requestUserinfo = await axios.get(requestUserinfoUrl);
+
+    console.log('📌 [debug] userinfo 요청 URL:', requestUserinfoUrl);
 
     if (requestUserinfo.status === 200) {
       const { email, name, picture } = requestUserinfo.data;
