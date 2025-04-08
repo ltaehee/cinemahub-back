@@ -66,6 +66,8 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
         res.cookie('register_google', register_google, {
           httpOnly: true,
           maxAge: 60 * 60 * 1000,
+          sameSite: 'None', // 꼭 None
+          secure: true, // 반드시 true
         });
         return res.redirect(`${FRONT_URL}register?social=1`);
       }
