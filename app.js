@@ -24,6 +24,8 @@ app.use(
   })
 );
 
+app.use(cookieParser());
+const isProduction = process.env.NODE_ENV === 'production';
 app.use(
   session({
     name: SESSION_NAME,
@@ -33,16 +35,16 @@ app.use(
     store: new MemoryStore({
       checkPeriod: 24 * 60 * 60 * 1000,
     }),
+
     cookie: {
-      secure: false,
+      secure: isProduction,
       httpOnly: true,
-      sameSite: 'Lax',
+      sameSite: isProduction ? 'None' : 'Lax',
     },
   })
 );
 
 app.use('images', express.static('images'));
-app.use(cookieParser());
 app.use('/api', apiController);
 
 app.get('/', (req, res) => {

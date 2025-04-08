@@ -21,7 +21,6 @@ const googleController = require('express').Router();
  * /api/login/google-oauth
  */
 googleController.get('/google-oauth', (req, res) => {
-  console.log('✅ [1] 구글 로그인 진입');
   const oauthEntryUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${googleClientId}&redirect_uri=${googleOauthRedirectUri}&response_type=code&scope=email profile`;
   res.redirect(oauthEntryUrl);
 });
@@ -30,7 +29,6 @@ googleController.get('/google-oauth', (req, res) => {
  * /api/login/google-oauth-redirect
  */
 googleController.get('/google-oauth-redirect', async (req, res) => {
-  console.log('✅ [2] 리디렉션 도착!', req.query);
   const { code } = req.query;
 
   const redirectUrl = `https://oauth2.googleapis.com/token`;
@@ -43,8 +41,6 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
       redirect_uri: googleOauthRedirectUri,
       grant_type: 'authorization_code',
     });
-    // console.log('✅ [3] axios 응답 전체:', request);
-    // console.log('✅ [4] request.data:', request?.data);
 
     const { error, error_description } = request.data;
 
@@ -57,14 +53,9 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
     const requestUserinfoUrl = `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${access_token}`;
     const requestUserinfo = await axios.get(requestUserinfoUrl);
 
-    console.log('📌 [debug] userinfo:', requestUserinfo);
-
     if (requestUserinfo.status === 200) {
       const { email, name, picture } = requestUserinfo.data;
       const result = await findUserEmailBoolean({ email });
-
-      console.log('📌 [debug] requestUserinfo.data:', requestUserinfo.data);
-      console.log('📌 [debug] result:', result);
 
       // 등록된 회원이 아닐 경우
       if (!result) {
@@ -87,12 +78,20 @@ googleController.get('/google-oauth-redirect', async (req, res) => {
 
       req.session.loginState = true;
       req.session.user = { email };
+      console.log('req.session.user', req.session.user);
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('세션 저장 오류:', err);
+          return res.status(500).send('세션 저장 실패');
+        }
+        return res.redirect(FRONT_URL);
+      });
 
       // 기등록 유저일 떄 바로 로그인
-      return res.redirect(FRONT_URL);
+      // return res.redirect(FRONT_URL);
     }
   } catch (e) {
-    // 🔽 여기를 이렇게 고치라는 뜻이었어요!
     console.error('❌ [3] Google OAuth 토큰 요청 실패!');
     if (e.response) {
       console.error('📦 에러 응답 데이터:', e.response.data);

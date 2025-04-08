@@ -106,7 +106,7 @@ loginController.get('/logout', (req, res) => {
 });
 
 loginController.get('/check-login', (req, res) => {
-  console.log(req.session.loginState);
+  console.log('check-login', req.session.loginState);
   if (req.session.loginState) {
     return res.json({ result: true });
   } else {
