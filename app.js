@@ -41,10 +41,9 @@ app.use(
     }),
 
     cookie: {
-      secure: true,
+      secure: isProduction,
       httpOnly: true,
-      // sameSite: isProduction ? 'None' : 'Lax',
-      sameSite: 'None',
+      sameSite: isProduction ? 'None' : 'Lax',
     },
   })
 );
