@@ -36,6 +36,8 @@ const fetchPopularActors = async () => {
   }
 };
 
+// fetchPopularActors();
+
 cron.schedule('0 0 * * *', fetchPopularActors);
 
 const getPopularActors = async () => {

@@ -12,11 +12,6 @@ const MemoryStore = require('memorystore')(session);
 
 const app = express();
 
-app.set('trust proxy', 1);
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
 app.use(
   cors({
     origin: [
@@ -27,7 +22,11 @@ app.use(
   })
 );
 
+app.set('trust proxy', 1);
 app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+
 const isProduction = process.env.NODE_ENV === 'production';
 console.log('isProduction', isProduction);
 app.use(
