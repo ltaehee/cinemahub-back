@@ -1,4 +1,4 @@
-// require('dotenv').config();
+require('dotenv').config();
 const { vaildateEnv } = require('./regex');
 
 const PORT = vaildateEnv('string', process.env.PORT);
